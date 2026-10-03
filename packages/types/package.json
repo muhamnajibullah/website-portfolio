@@ -1,0 +1,17 @@
+{
+  "name": "@portfolio/types",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@portfolio/validation": "workspace:*",
+    "zod": "^4.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

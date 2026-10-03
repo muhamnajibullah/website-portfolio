@@ -1,0 +1,28 @@
+{
+  "name": "software-engineer-portfolio",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "eslint .",
+    "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check:budget": "node scripts/check-budget.mjs",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm check:budget"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
+    "@electric-sql/pglite": "^0.3.14",
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^22.19.0",
+    "eslint": "^9.39.0",
+    "globals": "^16.5.0",
+    "turbo": "^2.8.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.0",
+    "vitest": "^4.1.11"
+  }
+}

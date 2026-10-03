@@ -1,0 +1,2 @@
+-- Intentionally empty: no invented profile, project, experience or photograph.
+-- Add authentic content through the CMS after provisioning an administrator.

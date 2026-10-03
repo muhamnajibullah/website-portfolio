@@ -1,0 +1,26 @@
+project_id = "software-engineer-portfolio"
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+[db]
+port = 54322
+major_version = 17
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+[studio]
+port = 54323
+[auth]
+site_url = "http://localhost:5174"
+additional_redirect_urls = []
+enable_signup = false
+[auth.rate_limit]
+sign_in_sign_ups = 10
+token_verifications = 10
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+[storage]
+enabled = true
+file_size_limit = "5MiB"
