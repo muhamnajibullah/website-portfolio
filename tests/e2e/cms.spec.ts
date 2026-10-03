@@ -61,10 +61,19 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
   expect(payloads).toHaveLength(0);
   await page.getByLabel('Live url', { exact: true }).fill('');
   await page.getByLabel('Description', { exact: true }).fill('<script>alert(1)</script>');
+  await page.getByLabel('Project problems', { exact: true }).fill('Synthetic CMS problem.');
+  await page.getByLabel('Solutions provided', { exact: true }).fill('Synthetic CMS solution.');
   await page.getByRole('button', { name: 'Preview draft' }).click();
   await expect(page.getByText('<script>alert(1)</script>', { exact: true })).toBeVisible();
+  await expect(page.getByText('Synthetic CMS problem.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Synthetic CMS solution.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Edit content' }).click();
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('heading', { name: 'Synthetic CMS test draft' })).toBeVisible();
-  expect(payloads[0]).toMatchObject({ status: 'draft', title: 'Synthetic CMS test draft' });
+  expect(payloads[0]).toMatchObject({
+    status: 'draft',
+    title: 'Synthetic CMS test draft',
+    challenges: ['Synthetic CMS problem.'],
+    solutions: ['Synthetic CMS solution.'],
+  });
 });

@@ -1,5 +1,6 @@
 import type { Content, Project } from '@portfolio/types';
 import { Icon, Image } from '@portfolio/ui';
+import { ProjectCaseStudy } from './ProjectCaseStudy';
 export function projectTechnologies(content: Content, id: string) {
   const ids = content.project_technologies
     .filter((link) => link.project_id === id)
@@ -15,6 +16,7 @@ export function ProjectCard({
   content: Content;
   index: number;
 }) {
+  const technologies = projectTechnologies(content, project.id);
   return (
     <article className="project-card">
       <a
@@ -48,13 +50,19 @@ export function ProjectCard({
           <a href={`/projects/${project.slug}`}>{project.title}</a>
         </h3>
         <p>{project.summary}</p>
+        <ProjectCaseStudy project={project} compact headingLevel={4} />
+        <h4 className="project-tools-heading">Tools used</h4>
         <div className="tag-row">
-          {projectTechnologies(content, project.id).map((technology) => (
+          {technologies.map((technology) => (
             <span className="badge" key={technology.id}>
               {technology.name}
             </span>
           ))}
         </div>
+        {technologies.length === 0 && <p className="small-text">Tools to be added.</p>}
+        <a className="text-link" href={`/projects/${project.slug}`}>
+          Read project details <Icon name="arrow" size={16} />
+        </a>
       </div>
     </article>
   );

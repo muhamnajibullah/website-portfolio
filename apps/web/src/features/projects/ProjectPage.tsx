@@ -1,6 +1,7 @@
 import type { Content, Project } from '@portfolio/types';
 import { Image, Icon } from '@portfolio/ui';
 import { projectTechnologies } from './ProjectCard';
+import { ProjectCaseStudy } from './ProjectCaseStudy';
 export function ProjectPage({ project, content }: { project: Project; content: Content }) {
   const mediaIds = content.project_media
     .filter((link) => link.project_id === project.id)
@@ -73,25 +74,17 @@ export function ProjectPage({ project, content }: { project: Project; content: C
           )}
         </section>
       )}
-      {(
-        [
-          ['Responsibilities', project.responsibilities],
-          ['Challenges', project.challenges],
-          ['Solutions', project.solutions],
-        ] as const
-      ).map(
-        ([label, values]) =>
-          values.length > 0 && (
-            <section className="detail-section" key={label}>
-              <h2>{label}</h2>
-              <ul>
-                {values.map((value, index) => (
-                  <li key={index}>{value}</li>
-                ))}
-              </ul>
-            </section>
-          ),
+      {project.responsibilities.length > 0 && (
+        <section className="detail-section">
+          <h2>Responsibilities</h2>
+          <ul>
+            {project.responsibilities.map((value, index) => (
+              <li key={index}>{value}</li>
+            ))}
+          </ul>
+        </section>
       )}
+      <ProjectCaseStudy project={project} headingLevel={2} />
       {gallery.length > 0 && (
         <section className="detail-section">
           <h2>Project gallery</h2>

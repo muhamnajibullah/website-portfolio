@@ -2,6 +2,7 @@ node_modules/
 dist/
 .ssr/
 .turbo/
+.vercel/
 .env
 .env.*
 !.env.example

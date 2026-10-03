@@ -6,6 +6,8 @@ import { createFlightInput } from './systems/flightMovement';
 import { nearestPoint } from './systems/proximitySystem';
 import { createWorld, type WorldSettings } from './scene/createWorld';
 import { TouchFlightControls } from './controls/TouchFlightControls';
+import { projectTechnologies } from '../projects/ProjectCard';
+import { ProjectCaseStudy } from '../projects/ProjectCaseStudy';
 import './world.css';
 
 export default function InteractiveWorld({
@@ -126,19 +128,33 @@ export default function InteractiveWorld({
     <div ref={container} className="world">
       <div ref={host} className="scene-host" />
       <div className="world-labels" aria-hidden="true">
-        {points.map((point) => (
-          <div
-            className="point-label"
-            key={point.id}
-            ref={(element) => {
-              if (element) labels.current.set(point.id, element);
-              else labels.current.delete(point.id);
-            }}
-          >
-            <span>{point.project_id ? 'Project' : 'Experience'}</span>
-            {pointTitle(point)}
-          </div>
-        ))}
+        {points.map((point) => {
+          const previewProject = content.projects.find((item) => item.id === point.project_id);
+          return (
+            <div
+              className="point-label"
+              key={point.id}
+              ref={(element) => {
+                if (element) labels.current.set(point.id, element);
+                else labels.current.delete(point.id);
+              }}
+            >
+              <span className="point-kind">{point.project_id ? 'Project' : 'Experience'}</span>
+              <strong>{pointTitle(point)}</strong>
+              {previewProject && (
+                <div className="point-preview">
+                  <p>{previewProject.summary}</p>
+                  <div className="point-tools">
+                    {projectTechnologies(content, previewProject.id).map((technology) => (
+                      <span key={technology.id}>{technology.name}</span>
+                    ))}
+                  </div>
+                  <small>Open details for problem & solution</small>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
       <header className="world-header">
         <div className="world-brand">
@@ -216,6 +232,7 @@ export default function InteractiveWorld({
             </p>
           )}
           <p className="text-block">{project?.summary ?? experience?.description}</p>
+          {project && <ProjectCaseStudy project={project} />}
           {experience && (
             <ul>
               {experience.responsibilities.map((value, index) => (
@@ -223,6 +240,7 @@ export default function InteractiveWorld({
               ))}
             </ul>
           )}
+          <h3 className="project-tools-heading">Tools used</h3>
           <div className="tag-row">
             {content.technologies
               .filter((technology) => linkedIds.includes(technology.id))
@@ -232,6 +250,7 @@ export default function InteractiveWorld({
                 </span>
               ))}
           </div>
+          {linkedIds.length === 0 && <p className="small-text">Tools to be added.</p>}
           <div className="actions">
             {project && (
               <a className="button primary" href={`/projects/${project.slug}`}>

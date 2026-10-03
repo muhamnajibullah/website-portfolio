@@ -61,7 +61,11 @@ const multiline = new Set([
   'solutions',
 ]);
 const humanize = (key: string) =>
-  key.replace(/_/g, ' ').replace(/^./, (value) => value.toUpperCase());
+  key === 'challenges'
+    ? 'Project problems'
+    : key === 'solutions'
+      ? 'Solutions provided'
+      : key.replace(/_/g, ' ').replace(/^./, (value) => value.toUpperCase());
 
 export function RecordEditor({
   table,
@@ -138,13 +142,21 @@ export function RecordEditor({
             .filter(
               ([key, data]) =>
                 !['id', 'status', 'sort_order', 'title'].includes(key) &&
-                typeof data === 'string' &&
-                Boolean(data),
+                ((typeof data === 'string' && Boolean(data)) ||
+                  (Array.isArray(data) && data.length > 0)),
             )
             .map(([key, data]) => (
               <div key={key}>
                 <h4>{humanize(key)}</h4>
-                <p className="text-block">{String(data)}</p>
+                {Array.isArray(data) ? (
+                  <ul>
+                    {data.map((entry, index) => (
+                      <li key={index}>{String(entry)}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-block">{String(data)}</p>
+                )}
               </div>
             ))}
           <p className="small-text">

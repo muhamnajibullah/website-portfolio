@@ -27,6 +27,8 @@ Tanpa konfigurasi Supabase, portfolio memakai snapshot kosong dengan placeholder
 
 ## Hubungkan Supabase
 
+Panduan dashboard langkah demi langkah, pengisian card project, dan konfigurasi kedua aplikasi Vercel tersedia di [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
 1. Buat Supabase project. Salin `.env.example` ke `apps/web/.env.local` dan `apps/cms/.env.local`.
 2. Isi `VITE_SUPABASE_URL`, **publishable key**, dan `VITE_SITE_URL`. Jangan menggunakan secret/service-role key. Restart Vite setelah mengubah env.
 3. Apply `supabase/migrations/202610030001_portfolio.sql` melalui migration tooling Supabase atau SQL Editor pada project baru. Dengan CLI: `supabase link --project-ref <ref>`, lalu `supabase db push`. CLI dan Docker dibutuhkan hanya untuk menjalankan Supabase lokal (`supabase start`).
@@ -45,6 +47,8 @@ insert into public.admin_profiles(user_id) values ('UUID-DARI-AUTH-USERS');
 Bucket `public-media` hanya untuk gambar yang boleh diakses publik. Upload PNG/JPEG/WebP maksimal 5 MB, diverifikasi MIME, signature, decode dan dimensions di CMS. URL publik dapat disalin ke image URL/OG image fields. Metadata draft tidak membuat file dalam public bucket menjadi private. Delete record metadata tidak menghapus storage object; pembersihan file dilakukan dari Storage dashboard setelah memastikan tidak ada referensi.
 
 ## Interactive Mode
+
+Tujuan project menampilkan nama saat discovery dan preview card ringkasan/tools saat helicopter mendekat. **Open details / E** membuka card DOM dengan seluruh problem, solusi dan tools dari CMS. Card Normal Mode menampilkan problem/solusi pertama; halaman `/projects/:slug` menyajikan semua poin. CMS menggunakan label **Project problems** (`challenges`) dan **Solutions provided** (`solutions`); schema database tetap sama.
 
 - `W/S`: maju/mundur, `A/D`: belok, mouse/drag: kamera.
 - `↑/↓` atau `Space/Shift`: altitude; `E`: detail; `R`: reset; `Escape`: Normal Mode.

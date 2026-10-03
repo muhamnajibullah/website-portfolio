@@ -19,6 +19,12 @@ for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840
     await expect(
       page.getByRole('heading', { name: 'Synthetic browser test project' }),
     ).toBeVisible();
+    const card = page.locator('.project-card');
+    await expect(
+      card.getByText(fixture.projects[0]!.challenges[0]!, { exact: true }),
+    ).toBeVisible();
+    await expect(card.getByText(fixture.projects[0]!.solutions[0]!, { exact: true })).toBeVisible();
+    await expect(card.getByText('Browser test tool', { exact: true })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -47,11 +53,23 @@ test('Three.js loads after Enter World; controls, proximity, details and exit wo
   expect(scripts.some((url) => /InteractiveWorld|three/i.test(url))).toBe(false);
   await page.getByRole('button', { name: 'Enter world' }).click();
   await expect(page.locator('canvas')).toBeVisible();
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await page.getByLabel('Graphics quality').selectOption('low');
+  await page.getByRole('button', { name: 'Continue exploring' }).click();
   await page.keyboard.down('w');
   await expect(page.getByRole('button', { name: 'Open details' })).toBeEnabled();
   await page.keyboard.up('w');
   await page.keyboard.press('e');
   await expect(page.getByRole('dialog', { name: 'Synthetic browser test project' })).toBeVisible();
+  const pointCard = page.locator('.point-label');
+  await expect(pointCard.getByText(fixture.projects[0]!.summary, { exact: true })).toBeVisible();
+  await expect(pointCard.getByText('Browser test tool', { exact: true })).toBeVisible();
+  const details = page.getByRole('dialog', { name: 'Synthetic browser test project' });
+  for (const value of [...fixture.projects[0]!.challenges, ...fixture.projects[0]!.solutions])
+    await expect(details.getByText(value, { exact: true })).toBeVisible();
+  await expect(details.getByText('Browser test tool', { exact: true })).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: 'test-results/project-details-desktop.png' });
   await expect(page.getByRole('link', { name: 'View full project' })).toHaveAttribute(
     'href',
     '/projects/synthetic-test-project',
@@ -99,7 +117,10 @@ for (const viewport of [
       const touch = await context.newCDPSession(page);
       await touch.send('Input.dispatchTouchEvent', {
         type: 'touchStart',
-        touchPoints: [{ x: joystick.x + joystick.width / 2, y: joystick.y + 12 }],
+        // A gentle approach avoids crossing the interaction radius between emulator assertions.
+        touchPoints: [
+          { x: joystick.x + joystick.width / 2, y: joystick.y + joystick.height / 2 - 10 },
+        ],
       });
       await expect(page.getByRole('button', { name: 'Open details' })).toBeEnabled();
       await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
@@ -113,6 +134,17 @@ for (const viewport of [
       await expect(
         page.getByRole('dialog', { name: 'Synthetic browser test project' }),
       ).toBeVisible();
+      const details = page.getByRole('dialog', { name: 'Synthetic browser test project' });
+      await expect(
+        details.getByText(fixture.projects[0]!.challenges[0]!, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        details.getByText(fixture.projects[0]!.solutions[0]!, { exact: true }),
+      ).toBeVisible();
+      expect(await details.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(
+        true,
+      );
+      await page.screenshot({ path: `test-results/project-details-touch-${viewport.width}.png` });
       await page.getByRole('button', { name: 'Continue exploring' }).tap();
       const altitude = await page.getByRole('button', { name: 'Ascend helicopter' }).boundingBox();
       if (!altitude) throw new Error('Altitude control missing');
@@ -172,6 +204,8 @@ test('CMS content is rendered as text and project pages retain stable URLs', asy
     page.getByRole('heading', { name: 'Synthetic browser test project', level: 1 }),
   ).toBeVisible();
   await expect(page.getByText('<img src=x onerror=alert(1)>', { exact: true })).toBeVisible();
+  for (const value of [...fixture.projects[0]!.challenges, ...fixture.projects[0]!.solutions])
+    await expect(page.getByText(value, { exact: true })).toBeVisible();
   expect(await page.locator('img[onerror]').count()).toBe(0);
   await expect(page).toHaveTitle(/Synthetic browser test project/);
 });

@@ -371,6 +371,43 @@
 .project-content p {
   font-size: 0.875rem;
 }
+.project-case-study {
+  display: grid;
+  gap: 20px;
+  margin: 24px 0;
+  overflow-wrap: anywhere;
+}
+.project-case-study section {
+  min-width: 0;
+}
+.project-case-study h2,
+.project-case-study h3,
+.project-case-study h4,
+.project-tools-heading {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+.project-case-study ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.project-case-study li {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+.project-case-study.compact {
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.project-detail .project-case-study {
+  margin: 40px 0;
+}
+.project-detail .project-case-study h2 {
+  font-size: 1.35rem;
+}
 .other-projects {
   margin-top: 40px;
 }

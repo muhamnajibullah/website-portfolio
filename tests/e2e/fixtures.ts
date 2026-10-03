@@ -32,6 +32,8 @@ export const fixture = contentSchema.parse({
       description: '<img src=x onerror=alert(1)>',
       role: 'Test role',
       responsibilities: ['Automated test responsibility'],
+      challenges: ['Synthetic problem for browser verification.', 'Second synthetic problem.'],
+      solutions: ['Synthetic solution for browser verification.', 'Second synthetic solution.'],
     }),
   ],
   work_experiences: [
