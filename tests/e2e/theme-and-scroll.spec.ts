@@ -124,6 +124,11 @@ for (const theme of ['dark', 'light'] as const) {
     if (theme === 'light') await page.getByRole('button', { name: 'Switch to light mode' }).click();
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    // The CI runner can audit while colors are still interpolating after the theme reload.
+    await expect(page.locator('.auth-card .eyebrow')).toHaveCSS(
+      'color',
+      theme === 'dark' ? 'rgb(0, 209, 209)' : 'rgb(0, 118, 118)',
+    );
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({ path: `test-results/cms-${theme}.png`, fullPage: true });
   });

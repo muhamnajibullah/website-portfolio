@@ -167,3 +167,15 @@ Artefak lokal ignored: `test-results/editorial-{dark,light}-{390,820,1440}.png`,
 `test-results/editorial-menu-{390,820}.png`, serta screenshot CMS/world.
 Screenshot fixture tidak menjadi konten aplikasi. Pengujian touch perangkat
 fisik dan Lighthouse dengan aset/konten asli masih belum dilakukan.
+
+Production smoke check pada 390/820/1440px pass: public/CMS HTTP 200,
+Dark/Light + persistence, editorial layout, centered intro/mobile navigation,
+menu → intro, axe tanpa violations, dan tidak ada browser errors. Desktop
+world memuat canvas setelah Enter world, theme material/HUD neutral, settings,
+reset/exit, focus return dan scroll recovery pass. Check ini read-only terhadap
+CMS/data cloud; artefak ada di `.vercel/editorial-production-verification.json`
+dan `.vercel/editorial-live-*.png` (ignored).
+
+Audit theme di CI menunggu computed cyan akhir sebelum axe dijalankan,
+agar pemeriksaan membaca palette final sesudah transisi warna. Tidak ada
+violation yang disembunyikan atau rules axe yang dinonaktifkan.
