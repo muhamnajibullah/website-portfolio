@@ -4,6 +4,7 @@ import { Dialog, ErrorBoundary, Icon, ThemeToggle, useScrollLock } from '@portfo
 import { pageMetadata } from '@portfolio/seo';
 import { PortfolioPage } from '../features/profile/PortfolioPage';
 import { ProjectPage } from '../features/projects/ProjectPage';
+import { NavigationLinks } from '../components/NavigationLinks';
 
 const InteractiveWorld = lazy(() => import('../features/interactive-world/InteractiveWorld'));
 export function PublicApp({
@@ -21,6 +22,10 @@ export function PublicApp({
 }) {
   const [mode, setMode] = useState<'normal' | 'intro' | 'world'>('normal');
   const [menu, setMenu] = useState(false);
+  const [activeSection, setActiveSection] = useState(
+    path.startsWith('/projects/') ? 'projects' : '',
+  );
+  const menuTrigger = useRef<HTMLButtonElement>(null);
   const entry = useRef<{ button: HTMLButtonElement; x: number; y: number } | null>(null);
   useScrollLock(mode === 'world');
   const slug = path.startsWith('/projects/') ? path.split('/')[2] : undefined;
@@ -36,17 +41,51 @@ export function PublicApp({
       ?.setAttribute('content', metadata.description);
   }, [content, project, missing]);
   const openIntro = (event: MouseEvent<HTMLButtonElement>) => {
-    entry.current = { button: event.currentTarget, x: window.scrollX, y: window.scrollY };
+    const button = event.currentTarget.closest('.mobile-navigation-dialog')
+      ? (menuTrigger.current ?? event.currentTarget)
+      : event.currentTarget;
+    entry.current = { button, x: window.scrollX, y: window.scrollY };
+    setMenu(false);
     setMode('intro');
   };
   const exit = useCallback(() => {
     setMode('normal');
     requestAnimationFrame(() => {
       const previous = entry.current;
-      previous?.button.focus({ preventScroll: true });
+      const target = previous?.button.getClientRects().length
+        ? previous.button
+        : document.querySelector<HTMLButtonElement>('.navigation .nav-game');
+      target?.focus({ preventScroll: true });
       if (previous) window.scrollTo({ left: previous.x, top: previous.y, behavior: 'instant' });
     });
   }, []);
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 961px)');
+    const closeMobileMenu = () => {
+      if (desktop.matches) setMenu(false);
+    };
+    desktop.addEventListener('change', closeMobileMenu);
+    return () => desktop.removeEventListener('change', closeMobileMenu);
+  }, []);
+  useEffect(() => {
+    if (path !== '/') return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const section of entries)
+          if (section.isIntersecting) setActiveSection(section.target.id);
+      },
+      { rootMargin: '-15% 0px -60% 0px' },
+    );
+    for (const id of ['projects', 'experience', 'about', 'mini-game']) {
+      const section = document.getElementById(id);
+      if (section) observer.observe(section);
+    }
+    return () => observer.disconnect();
+  }, [path]);
+  const navigate = (id: string) => {
+    setActiveSection(id);
+    setMenu(false);
+  };
   return (
     <>
       <a className="skip-link" href="#main">
@@ -66,35 +105,44 @@ export function PublicApp({
           <div className="header-actions">
             <ThemeToggle />
             <button
+              ref={menuTrigger}
               className="icon-button mobile-menu"
               aria-label="Toggle navigation"
               aria-expanded={menu}
-              aria-controls="navigation"
+              aria-controls={menu ? 'mobile-navigation' : undefined}
               onClick={() => setMenu(!menu)}
             >
               <Icon name={menu ? 'close' : 'menu'} />
             </button>
           </div>
-          <nav
-            id="navigation"
-            className={menu ? 'navigation open' : 'navigation'}
-            aria-label="Main navigation"
-          >
-            {[
-              ['About', 'about'],
-              ['Projects', 'projects'],
-              ['Experience', 'experience'],
-            ].map(([label, id]) => (
-              <a key={id} href={`/#${id}`} onClick={() => setMenu(false)}>
-                {label}
-              </a>
-            ))}
-            <a href="/#contact" className="nav-contact" onClick={() => setMenu(false)}>
-              Let’s talk <Icon name="arrow" size={16} />
-            </a>
+          <nav id="navigation" className="navigation" aria-label="Main navigation">
+            <NavigationLinks active={activeSection} onNavigate={navigate} onExplore={openIntro} />
           </nav>
         </div>
       </header>
+      {menu && (
+        <Dialog
+          title="Navigation"
+          className="mobile-navigation-dialog"
+          onClose={() => setMenu(false)}
+        >
+          <nav
+            id="mobile-navigation"
+            className="mobile-navigation-links"
+            aria-label="Mobile navigation"
+          >
+            <NavigationLinks active={activeSection} onNavigate={navigate} onExplore={openIntro} />
+          </nav>
+          <a
+            href="/#contact"
+            className="text-link mobile-nav-contact"
+            onClick={() => navigate('contact')}
+          >
+            Let’s talk <Icon />
+          </a>
+          <span className="small-text">{name} · Software Engineer</span>
+        </Dialog>
+      )}
       {error && (
         <div className="container notice error" role="alert">
           Could not load the latest content. Showing the last available version.{' '}

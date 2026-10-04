@@ -16,8 +16,19 @@ export function ExperienceTimeline({ content }: { content: Content }) {
         return (
           <article className="experience" key={experience.id}>
             <div className="experience-period">
-              {experience.start_date || 'Date not added yet'}
-              <span>— {experience.end_date || 'Present'}</span>
+              {experience.start_date ? (
+                <time dateTime={experience.start_date}>{experience.start_date.slice(0, 4)}</time>
+              ) : (
+                'Date not added yet'
+              )}
+              <span>
+                —{' '}
+                {experience.end_date ? (
+                  <time dateTime={experience.end_date}>{experience.end_date.slice(0, 4)}</time>
+                ) : (
+                  'Present'
+                )}
+              </span>
             </div>
             <div>
               <div className="experience-heading">
@@ -30,8 +41,8 @@ export function ExperienceTimeline({ content }: { content: Content }) {
                   />
                 )}
                 <div>
-                  <h3>{experience.position}</h3>
-                  <span className="organization">{experience.organization}</span>
+                  <h3>{experience.organization}</h3>
+                  <span className="organization">{experience.position}</span>
                 </div>
               </div>
               <p className="text-block">{experience.description}</p>

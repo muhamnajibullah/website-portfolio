@@ -11,6 +11,8 @@ Panduan ini untuk repository portfolio ini. Jika akun/project sudah dibuat, lang
 - CMS production: [website-portfolio-cms.vercel.app](https://website-portfolio-cms.vercel.app); [dashboard Vercel CMS](https://vercel.com/muhammadnajibullah/website-portfolio-cms).
 - URL dan publishable key sudah diisi pada kedua `.env.local` lokal. File env tidak ikut Git.
 - Migration `202610030001_portfolio.sql` sudah diterapkan menggunakan `supabase db push`, termasuk migration history, RLS dan bucket `public-media`. Error awal `PGRST205` sudah terselesaikan; jangan menjalankan ulang migration awal di SQL Editor.
+- Migration additive `20261004083321_editorial_case_study.sql` sudah diterapkan
+  untuk field case study editorial. Data lama, policies dan izin tidak diubah.
 - Public signup sudah dinonaktifkan. Auth Site URL memakai CMS production; redirect allowlist hanya CMS production, `http://localhost:5174` dan `http://127.0.0.1:5174`. Batas sign-in dan token verification masing-masing 10 mengikuti konfigurasi keamanan repository.
 - Kedua project Vercel terhubung ke repository GitHub pada production branch `master`, memakai Node.js 22.x dan pnpm 10.32.1. Root masing-masing `apps/web` dan `apps/cms`, dengan shared source di luar root disertakan.
 - Environment Production sudah diisi pada kedua project. `VITE_SITE_URL` memakai `https://website-portfolio-one-sandy.vercel.app`, termasuk pada CMS. Preview tidak diberi koneksi Supabase production; Vercel Authentication tetap melindungi Preview.
@@ -27,13 +29,24 @@ Langkah provisioning di bawah tetap menjadi referensi untuk environment baru. Pu
 ## 1. Siapkan database Supabase
 
 1. Buka project Anda di [Supabase Dashboard](https://supabase.com/dashboard).
-2. Pada project baru yang belum memiliki tabel portfolio, buka **SQL Editor → New query**. Salin seluruh isi `supabase/migrations/202610030001_portfolio.sql`, kemudian **Run**. Migration membuat tabel, RLS, izin admin dan bucket gambar; jangan membuat ulang tabel secara manual. Jika migration sudah diterapkan, lanjutkan ke langkah berikutnya. Untuk project yang berisi data/schema lain, periksa konflik terlebih dahulu.
+2. Pada project baru, gunakan CLI untuk menerapkan seluruh `supabase/migrations/`
+   secara berurutan. Jika menggunakan **SQL Editor → New query**, jalankan
+   migration awal `202610030001_portfolio.sql`, lalu
+   `20261004083321_editorial_case_study.sql`. Jangan menjalankan ulang migration
+   yang sudah diterapkan. Migration membuat tabel, RLS, admin, bucket gambar
+   dan field case study; jangan membuat ulang tabel secara manual. Untuk
+   project yang berisi data/schema lain, periksa konflik terlebih dahulu.
 3. Pastikan tabel `profiles`, `projects`, `technologies`, `project_technologies`, `interactive_points`, serta `admin_profiles` muncul di Table Editor, dan bucket `public-media` muncul di Storage.
 4. Ambil **Project URL** melalui dialog **Connect** atau **Integrations → Data API**, dan **publishable key** dari **Settings → API Keys**. Nama menu dapat berubah; yang dibutuhkan adalah URL `https://<project-ref>.supabase.co` dan key `sb_publishable_...`.
 
 Publishable key memang digunakan browser. Akses data tetap dibatasi RLS. Jangan memakai `sb_secret_...`, `service_role`, database password, atau personal access token dalam env `VITE_`. [Dokumentasi API keys](https://supabase.com/docs/guides/getting-started/api-keys).
 
 Pilihan CLI untuk migration: `supabase link --project-ref <project-ref>`, kemudian `supabase db push`. Jika Anda memilih SQL Editor, migration history CLI tidak otomatis tercatat; jangan menjalankan kedua cara untuk migration pertama tanpa menyelaraskan history. Docker hanya diperlukan jika ingin menjalankan stack Supabase lokal.
+
+Untuk upgrade project yang sudah linked, jalankan `supabase db push --dry-run`
+untuk memeriksa migrations yang belum applied, kemudian `supabase db push`.
+Apply migration case study **sebelum** deployment CMS yang memakai field baru.
+Pemeriksaan read-only: `supabase db query --linked --file supabase/tests/editorial-check.sql`.
 
 Untuk memeriksa RLS pada project yang sudah linked, gunakan CLI Supabase 2.119.0:
 
@@ -96,10 +109,20 @@ Buka portfolio `http://localhost:5173` dan CMS `http://localhost:5174`. Login CM
 | Solusi yang diberikan | Projects → Solutions provided (`solutions`)                       |
 | Tools yang digunakan  | Technologies + Project technologies                               |
 | Detail pekerjaan Anda | Projects → Role, Responsibilities, Description                    |
+| Pendekatan teknis     | Projects → Engineering approach                                   |
+| Fitur utama           | Projects → Key features                                           |
+| Tantangan teknis      | Projects → Technical challenges                                   |
+| Hasil project         | Projects → Project outcome                                        |
 | Gambar project        | Media Library → upload, lalu salin URL/alt/dimensions ke Projects |
 | Tujuan helicopter     | Interactive points → Project id, posisi, radius, Enabled          |
 
 Problem dan solusi menerima satu poin per baris. Preview draft menampilkan kedua field sebelum disimpan. Semua informasi memakai konten CMS; tidak ada project contoh yang dipublikasikan otomatis.
+
+Engineering approach dan Project outcome menerima plain text maksimal
+5000 karakter. Key features dan Technical challenges menerima satu poin
+per baris (maksimal 40 poin, masing-masing 1000 karakter). Keempat field
+opsional; bagian yang kosong disembunyikan pada halaman detail. Cover,
+gallery, role/timeline/tools dan next-project tetap berasal dari CMS.
 
 Urutan yang mudah:
 

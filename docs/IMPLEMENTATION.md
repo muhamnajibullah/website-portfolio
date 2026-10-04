@@ -8,6 +8,15 @@
 
 Core tables mengikuti panduan. Array responsibilities/challenges/solutions disimpan sebagai PostgreSQL `text[]`, bukan HTML. Relasi teknologi dan project gallery menggunakan junction tables, dengan publication status/order sendiri. Profile dan site-settings singleton dibatasi unique index. Experience related-project references menggunakan UUID array; hanya project yang tersedia dalam published query yang dirender. Image URL/alt/dimensions adalah field CMS. Table schema tidak memuat secret/private notes.
 
+Redesign editorial mengikuti `UI-UX-REVISION-DRIBBBLE.md`, menggantikan palette
+forest. Layout berubah tanpa mengganti monorepo, rendering atau akses data.
+Case study memakai empat field tambahan yang nullable-free dengan defaults
+kosong: `engineering_approach`, `key_features`, `technical_challenges`, dan
+`outcome`. Migration additive mempertahankan data/RLS dan divalidasi bersama
+seluruh migrations melalui PGlite. Isi dirender sebagai teks; section
+opsional disembunyikan ketika kosong. Featured/alternating projects tetap
+memakai status/order/content dari CMS, termasuk problem/solusi/tools.
+
 Shared Zod schemas memvalidasi response database dan mutation, sedangkan SQL constraints mengulang batas di database. Supabase client memakai tipe Database dari domain schemas. Identitas admin berasal dari `admin_profiles` yang tidak dapat dimutasi anon/authenticated, dan is_admin SECURITY DEFINER dengan search_path kosong. Jika akun telah enrolled MFA, token `aal2` wajib untuk admin policy. UI guard memberi UX; RLS tetap authorization boundary.
 
 ## Vite prerender strategy

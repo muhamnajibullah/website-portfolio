@@ -1,50 +1,63 @@
 @theme {
-  --font-sans: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Helvetica Neue', Arial, 'Segoe UI', sans-serif;
 }
 :root {
-  --forest-deep: #051f20;
-  --forest-dark: #0b2b26;
-  --forest-moss: #133532;
-  --forest-teal: #235347;
-  --forest-sage: #8eb69b;
-  --forest-mint: #daf1de;
+  --neutral-950: #0a0a0a;
+  --neutral-900: #111;
+  --neutral-850: #141414;
+  --neutral-800: #191919;
+  --neutral-700: #292929;
+  --neutral-600: #3a3a3a;
+  --neutral-500: #777773;
+  --neutral-400: #a7a7a2;
+  --neutral-100: #ecece7;
+  --neutral-50: #f5f5f1;
   --neutral-white: #fff;
-  --neutral-off-white: #f4faf5;
-  --color-bg: var(--forest-deep);
-  --color-bg-subtle: var(--forest-dark);
-  --color-surface: var(--forest-dark);
-  --color-surface-elevated: var(--forest-moss);
-  --color-surface-interactive: var(--forest-teal);
-  --color-border: var(--forest-teal);
-  --color-text: var(--forest-mint);
-  --color-text-secondary: var(--forest-sage);
-  --color-primary: var(--forest-sage);
-  --color-primary-hover: var(--forest-mint);
-  --color-on-primary: var(--forest-deep);
-  --color-focus: var(--forest-sage);
-  /* Form/button boundaries need stronger contrast than decorative card borders. */
-  --color-control-border: color-mix(in srgb, var(--color-primary) 70%, var(--color-surface));
+  --neutral-off-white: #f3f3f0;
+  --cyan-400: #24e0e0;
+  --cyan-500: #00d1d1;
+  --cyan-700: #007676;
+  --cyan-800: #006565;
+  --brand-accent: var(--cyan-500);
+  --color-bg: var(--neutral-950);
+  --color-bg-subtle: var(--neutral-900);
+  --color-surface: var(--neutral-850);
+  --color-surface-elevated: var(--neutral-800);
+  --color-surface-interactive: var(--neutral-700);
+  --color-border: var(--neutral-700);
+  --color-text: var(--neutral-off-white);
+  --color-text-secondary: var(--neutral-400);
+  --color-text-muted: var(--neutral-500);
+  --color-primary: var(--cyan-500);
+  --color-accent-text: var(--cyan-500);
+  --color-primary-hover: var(--cyan-400);
+  --color-on-primary: #071010;
+  --color-focus: var(--cyan-500);
+  /* Control boundaries meet 3:1; decorative separators remain deliberately quiet. */
+  --color-control-border: #686865;
+  --color-accent-muted: rgb(0 209 209 / 12%);
   --color-error: #ffc3b4;
   --color-error-surface: #3d211e;
   --color-error-border: #9e655a;
   --color-info: #c4dcf6;
   --color-info-surface: #172d40;
   --color-info-border: #52728e;
-  --color-shadow: color-mix(in srgb, var(--forest-deep) 16%, transparent);
-  --color-backdrop: color-mix(in srgb, var(--forest-deep) 72%, transparent);
+  --color-shadow: color-mix(in srgb, var(--neutral-950) 24%, transparent);
+  --color-backdrop: color-mix(in srgb, var(--neutral-950) 78%, transparent);
   --color-qr-surface: var(--neutral-white);
-  --world-sky: var(--forest-deep);
-  --world-ground: var(--forest-dark);
-  --world-pad: var(--forest-moss);
-  --world-building: var(--forest-teal);
-  --world-paint: var(--forest-sage);
-  --world-glass: var(--forest-mint);
-  --world-frame: var(--forest-teal);
-  --world-marker-idle: var(--forest-teal);
-  --world-marker-discovery: var(--forest-sage);
-  --world-marker-interaction: var(--forest-mint);
+  --world-sky: var(--neutral-950);
+  --world-ground: var(--neutral-900);
+  --world-pad: var(--neutral-700);
+  --world-building: var(--neutral-600);
+  --world-paint: var(--neutral-off-white);
+  --world-glass: var(--neutral-600);
+  --world-frame: var(--neutral-400);
+  --world-marker-idle: var(--neutral-500);
+  --world-marker-discovery: var(--cyan-700);
+  --world-marker-focus: var(--cyan-500);
+  --world-marker-interaction: var(--cyan-500);
   color-scheme: dark;
-  font-family: var(--font-sans, 'Segoe UI', Arial, sans-serif);
+  font-family: var(--font-sans, 'Helvetica Neue', Arial, sans-serif);
   color: var(--color-text);
   background: var(--color-bg);
   font-synthesis: none;
@@ -53,38 +66,43 @@
   --ink: var(--color-text);
   --muted: var(--color-text-secondary);
   --accent: var(--color-primary);
-  --accent-soft: var(--color-surface-elevated);
+  --accent-soft: var(--color-accent-muted);
   --line: var(--color-border);
   --surface: var(--color-surface);
-  --radius: 14px;
+  --radius: 4px;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 :root[data-theme='light'] {
   color-scheme: light;
-  --color-bg: var(--forest-mint);
-  --color-bg-subtle: var(--neutral-off-white);
+  --color-bg: var(--neutral-50);
+  --color-bg-subtle: var(--neutral-100);
   --color-surface: var(--neutral-white);
-  --color-surface-elevated: var(--forest-mint);
-  --color-surface-interactive: var(--forest-sage);
-  --color-border: var(--forest-sage);
-  --color-text: var(--forest-deep);
-  --color-text-secondary: var(--forest-teal);
-  --color-primary: var(--forest-teal);
-  --color-primary-hover: var(--forest-moss);
-  --color-on-primary: var(--forest-mint);
-  --color-focus: var(--forest-teal);
+  --color-surface-elevated: #f0f0eb;
+  --color-surface-interactive: #d7d7d1;
+  --color-border: #d7d7d1;
+  --color-text: #101010;
+  --color-text-secondary: #50504d;
+  /* Darker semantic cyan keeps small text and white button labels readable in Light Mode. */
+  --color-primary: var(--cyan-700);
+  --color-accent-text: var(--cyan-800);
+  --color-primary-hover: var(--cyan-800);
+  --color-on-primary: var(--neutral-white);
+  --color-focus: var(--cyan-700);
+  --color-control-border: #888880;
+  --color-accent-muted: rgb(0 118 118 / 8%);
   --color-error: #7a3627;
   --color-error-surface: #fbf1ed;
   --color-error-border: #a86352;
   --color-info: #344d70;
   --color-info-surface: #eef3f9;
   --color-info-border: #52728e;
-  --world-sky: var(--forest-mint);
-  --world-ground: var(--forest-sage);
-  --world-pad: var(--neutral-off-white);
-  --world-paint: var(--forest-teal);
-  --world-glass: var(--forest-mint);
-  --world-frame: var(--forest-deep);
+  --world-sky: var(--neutral-100);
+  --world-ground: #d7d7d1;
+  --world-pad: var(--neutral-50);
+  --world-building: var(--neutral-400);
+  --world-paint: var(--neutral-600);
+  --world-glass: var(--neutral-off-white);
+  --world-frame: var(--neutral-950);
 }
 :where(
   html,
@@ -212,8 +230,8 @@ html {
   min-height: 46px;
   padding: 12px 20px;
   border: 1px solid var(--color-control-border);
-  border-radius: 10px;
-  background: var(--color-surface);
+  border-radius: var(--radius);
+  background: transparent;
   font-weight: 600;
   font-size: 0.875rem;
   text-decoration: none;
@@ -225,7 +243,8 @@ html {
     box-shadow 180ms ease;
 }
 .button:not(:disabled):hover {
-  background: var(--color-surface-elevated);
+  background: var(--color-accent-muted);
+  border-color: var(--color-primary);
   text-decoration: none;
 }
 .button.primary,
@@ -245,8 +264,7 @@ html {
 }
 @media (hover: hover) {
   .button:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px var(--color-shadow);
+    border-color: var(--color-primary);
   }
   .button:not(:disabled):hover svg,
   .text-link:hover svg {
@@ -263,7 +281,7 @@ html {
 }
 .icon-button {
   border: 1px solid var(--color-control-border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   display: inline-flex;
   align-items: center;
@@ -292,7 +310,7 @@ html {
   align-items: center;
   gap: 8px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 5px 9px;
   font:
     500 0.75rem/1.4 ui-monospace,
@@ -304,7 +322,7 @@ html {
 }
 .badge.accent {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--color-accent-text);
   border-color: var(--line);
 }
 .tag-row {
@@ -346,7 +364,7 @@ html {
   width: 44px;
   height: 44px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   display: grid;
   place-items: center;
   color: var(--muted);
@@ -359,7 +377,7 @@ html {
   height: fit-content;
   overflow: auto;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 6px;
   width: min(620px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
   padding: 28px;
@@ -402,7 +420,7 @@ html {
 }
 .notice {
   border: 1px solid var(--color-info-border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 12px 16px;
   background: var(--color-info-surface);
   color: var(--color-info);
@@ -429,7 +447,7 @@ html {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--color-control-border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   color: var(--ink);
   min-height: 46px;

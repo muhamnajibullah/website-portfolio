@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { fixture } from './fixtures';
 import { expectCenteredDialog } from './dialog';
 
-for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840]) {
+for (const width of [360, 390, 430, 768, 820, 1024, 1280, 1366, 1440, 1536, 1920, 2560, 3840]) {
   test(`normal mode has no overflow at ${width}px with placeholder and published content`, async ({
     page,
   }) => {
@@ -15,11 +15,19 @@ for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840
       true,
     );
     expect(await page.locator('canvas').count()).toBe(0);
-    await page.route('**/content.json', (route) => route.fulfill({ json: fixture }));
+    await page.route('**/content.json', (route) =>
+      route.fulfill({
+        json: {
+          ...fixture,
+          projects: fixture.projects.map((project) => ({ ...project, featured: false })),
+        },
+      }),
+    );
     await page.reload();
     await expect(
       page.getByRole('heading', { name: 'Synthetic browser test project' }),
     ).toBeVisible();
+    await expect(page.getByText('No projects published yet', { exact: true })).toHaveCount(0);
     const card = page.locator('.project-card');
     await expect(
       card.getByText(fixture.projects[0]!.challenges[0]!, { exact: true }),

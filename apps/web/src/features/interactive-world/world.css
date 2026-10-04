@@ -21,7 +21,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  background: linear-gradient(var(--world-sky), transparent);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--line);
 }
 .world-brand {
   display: flex;
@@ -51,7 +52,7 @@
   padding: 18px;
   border: 1px solid var(--line);
   background: var(--color-surface);
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 .world-hint p {
   font-size: 0.8rem;
@@ -79,7 +80,7 @@
   padding: 14px 18px;
   background: var(--color-surface);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-size: 0.72rem;
   color: var(--muted);
   display: flex;
@@ -100,11 +101,36 @@ kbd {
   text-align: center;
   max-width: 80%;
   padding: 10px 18px;
-  border-radius: 20px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   border: 1px solid var(--line);
   font-size: 0.8rem;
   color: var(--ink);
+}
+.world-status-label {
+  display: block;
+  color: var(--accent);
+  font:
+    0.58rem/1.5 ui-monospace,
+    Consolas,
+    monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.world-status strong {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 500;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.world-status-action {
+  display: block;
+  color: var(--muted);
+  font-size: 0.65rem;
+  line-height: 1.5;
+  margin-top: 6px;
 }
 .world-labels {
   position: absolute;
@@ -120,7 +146,7 @@ kbd {
   max-width: min(260px, calc(100vw - 32px));
   padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   font-size: 0.8rem;
   color: var(--ink);
@@ -181,7 +207,7 @@ kbd {
   border-color: var(--world-marker-discovery);
 }
 .point-label[data-zone='focus'] {
-  border-color: var(--world-marker-discovery);
+  border-color: var(--world-marker-focus);
   border-width: 2px;
 }
 .point-label[data-zone='interaction'] {
@@ -196,7 +222,7 @@ kbd {
   margin-top: 20px;
 }
 .world-details img {
-  border-radius: 10px;
+  border-radius: 2px;
   max-height: 240px;
   width: 100%;
   object-fit: cover;

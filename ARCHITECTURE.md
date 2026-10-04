@@ -2,20 +2,20 @@
 
 ## 1. Architecture Goals
 
--   sederhana untuk personal portfolio;
--   scalable tanpa premature microservices;
--   clear separation antara public web, CMS, shared code, Supabase, dan
-    Three.js;
--   fast deployment via Vercel;
--   secure by default;
--   content-driven;
--   3D code tidak membebani Normal Mode.
+- sederhana untuk personal portfolio;
+- scalable tanpa premature microservices;
+- clear separation antara public web, CMS, shared code, Supabase, dan
+  Three.js;
+- fast deployment via Vercel;
+- secure by default;
+- content-driven;
+- 3D code tidak membebani Normal Mode.
 
 ## 2. Monorepo
 
 Gunakan `pnpm` workspaces + Turborepo.
 
-``` text
+```text
 portfolio/
 ├─ apps/
 │  ├─ web/                 # public portfolio
@@ -50,7 +50,7 @@ memuatnya.
 
 Suggested feature structure:
 
-``` text
+```text
 src/
 ├─ app/
 ├─ components/
@@ -79,7 +79,7 @@ Interactive module harus dynamic imported.
 
 ## 4. CMS App
 
-``` text
+```text
 src/features/
 ├─ auth/
 ├─ dashboard/
@@ -107,6 +107,15 @@ radius, dan enabled state.
 
 Public visitor hanya membaca **published public fields**. CMS
 authenticated admin mendapat operasi sesuai policy.
+
+Editorial case study menambah field opsional pada `projects` melalui
+`20261004083321_editorial_case_study.sql`: `engineering_approach` dan
+`outcome` adalah plain text maksimal 5000 karakter; `key_features` dan
+`technical_challenges` adalah `text[]` dengan contract `safe_lines` yang
+sama dengan problem/solusi. Defaults kosong menjaga record lama tetap
+valid. Shared Zod schema, inferred types, CMS mutation dan public rendering
+menggunakan contract yang sama. RLS/grants/publication filtering tetap
+berlaku; tidak ada HTML, tabel baru, atau perubahan authorization.
 
 ## 6. Data Access
 
@@ -189,7 +198,6 @@ RLS policy tests; - optional Lighthouse/performance regression check.
 Database migrations harus version-controlled. Jangan melakukan perubahan
 schema production manual tanpa migration yang direkam.
 
-
 ## 15. Helicopter System Architecture
 
 Interactive world menggunakan entity `HelicopterPlayer`.
@@ -215,6 +223,7 @@ interactive-world/
 ```
 
 Pisahkan:
+
 - input;
 - flight state/movement;
 - model presentation;
@@ -225,14 +234,17 @@ Pisahkan:
 Jangan mengikat business content ke helicopter component.
 
 ### Flight Model
+
 Gunakan lightweight arcade movement, bukan full rigid-body helicopter simulation kecuali kemudian terbukti diperlukan. Ini mengurangi dependency, CPU cost, complexity, dan motion instability.
 
 Frame-rate independent movement menggunakan delta time. Clamp velocity/altitude dan batasi world bounds.
 
 ### Asset Loading
+
 Helicopter model menggunakan optimized GLB/GLTF ketika final asset tersedia. Load hanya setelah Interactive Mode dipilih.
 
 Pipeline asset harus mempertimbangkan:
+
 - mesh/poly count;
 - texture resolution;
 - texture compression bila tersedia;
@@ -244,4 +256,5 @@ Pipeline asset harus mempertimbangkan:
 Rotor animation sebisa mungkin sederhana dan tidak memerlukan physics simulation.
 
 ### Fallback
+
 Jika helicopter model gagal dimuat tetapi scene masih dapat berjalan, sistem boleh menggunakan lightweight fallback representation agar user tetap dapat menjelajah. Jika interactive runtime secara keseluruhan gagal, arahkan ke Normal Mode.

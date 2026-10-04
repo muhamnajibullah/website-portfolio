@@ -9,10 +9,11 @@ export function Technologies({ content }: { content: Content }) {
     );
   return (
     <div className="technology-grid">
-      {content.technology_categories.map((category) => (
+      {content.technology_categories.map((category, index) => (
         <article className="technology-category" key={category.id}>
           <span className="tool-icon">
             <Icon name="code" />
+            <span>{String(index + 1).padStart(2, '0')}</span>
           </span>
           <h3>{category.name}</h3>
           <div className="tag-row">

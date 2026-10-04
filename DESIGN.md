@@ -2,39 +2,67 @@
 
 ## 1. Reference Interpretation
 
-Referensi utama: `https://amix-design.com/tl/web-g-threejs/`.
+Sumber visual terbaru: [UI-UX-REVISION-DRIBBBLE.md](UI-UX-REVISION-DRIBBBLE.md).
+Dokumen tersebut mengalahkan pedoman visual sebelumnya, termasuk
+`UI-THEME.md`. Referensi FleexStudio di Dribbble digunakan untuk komposisi
+editorial, bukan salinan pixel-perfect.
 
-Referensi dipakai untuk memahami **spatial exploration / interactive
-gallery**, bukan untuk disalin secara visual atau dibuat sama beratnya.
-Portfolio ini harus lebih tenang, ringan, profesional, dan nyaman untuk
-user non-gamer.
+Referensi `https://amix-design.com/tl/web-g-threejs/` tetap membantu memahami
+**spatial exploration / interactive gallery**. Requirement helicopter,
+performance, CMS, accessibility, SEO, dan security tetap berlaku.
 
 ## 2. Design Personality
 
-Keywords: soft, modern, calm, technical, spacious, professional, subtle,
-memorable.
+Keywords: dark editorial, technical, spacious, professional, high contrast,
+oversized typography, large imagery, thin separators.
 
 Normal Mode tidak boleh terlihat seperti game. Interactive Mode boleh
 playful, tetapi tetap konsisten dengan identitas portfolio Software
 Engineer.
 
 Hindari neon berlebihan, blur/glass berat, excessive particles,
-continuous animation di semua section, kontras ekstrem, dan visual
+continuous animation di semua section, cyan glow berlebihan, dan visual
 clutter.
 
 ## 3. Normal Mode
 
 Struktur:
-`Navbar → Hero → About → Featured Projects → Tools → Experience → Interactive CTA → Contact → Footer`.
+`Navbar → Hero → About → Selected Projects → Work Experience → Tools → Interactive CTA → Contact → Footer`.
 
 Hero menggunakan area foto pribadi yang jelas. Sampai foto diberikan,
 gunakan placeholder dengan aspect ratio yang stabil agar layout tidak
 berubah saat aset final dimasukkan.
 
-Gunakan semantic tokens dan palette forest pada `UI-THEME.md`. Dark Mode
-menjadi default, Light Mode tersedia melalui toggle public/CMS dengan
-preferensi tersimpan. Tonal surfaces, subtle borders, dan sage/mint accent
-menjaga tampilan calm dan readable pada kedua theme.
+Gunakan neutral dark `#0A0A0A`, off-white `#F3F3F0`, dan brand cyan
+`#00D1D1`. Light Mode memakai neutral `#F5F5F1` dan semantic cyan yang lebih
+gelap untuk contrast teks/control. Primitive → semantic token → component
+token dibagi public, CMS, HUD, dan adapter material Three.js. Dark menjadi
+default, toggle public/CMS menyimpan preferensi dan bootstrap theme berjalan
+sebelum React.
+
+Hero menonjolkan dua baris **Software Engineer**, nama/statement CMS, dan
+portrait dengan aspect ratio stabil. About memakai split composition.
+Projects memakai numbered showcase, featured visual besar, dan susunan
+alternating; problem, solusi dan tools tetap terlihat. Experience berupa
+timeline/list dengan separators, tools dikelompokkan berdasarkan kategori.
+CTA interactive memakai cyan lebih kuat tanpa memuat Three.js.
+
+Project yang ditandai Featured mendapat prioritas, lalu CMS sort order.
+Semua published projects berada dalam satu showcase; entry pertama memakai
+visual besar walaupun belum ada flag Featured. Empty state hanya tampil
+ketika belum ada published project.
+
+Desktop navigation: name/mark, Projects, Experience, About, Mini game,
+theme. Mobile memakai header compact dan large-sheet navigation melalui
+shared dialog; keyboard, resize, dan perpindahan menu → intro memulihkan
+focus/scroll. Buttons berbentuk rectangular dengan radius kecil.
+
+Project detail memakai hero/cover besar, overview, role/timeline/stack,
+problem, engineering approach, key features, technical challenges,
+solution, screenshots, outcome, dan next project. Reading width dibatasi;
+field opsional ditampilkan hanya jika diisi melalui CMS. Screenshot/foto
+mempertahankan warna asli, dimensions dan alt; tidak difilter atau diberi
+cyan overlay.
 
 Typography maksimal 1--2 families, readable, fluid dengan `clamp()`, dan
 tidak membesar berlebihan pada 2K/4K.
@@ -65,7 +93,8 @@ empty states menjelaskan konten yang belum tersedia, dan pesan error memberi
 langkah berikutnya. Konten profil/project tetap berasal dari CMS.
 
 Interaction feedback menggunakan hover/press tombol, pergerakan ikon,
-underline navigation, tonal card hover, dan entrance pendek pada hero/dialog.
+underline navigation, border reveal, image scale maksimal 1.02, dan entrance
+pendek pada hero/dialog.
 Motion tidak berjalan terus-menerus; reduced motion menonaktifkan entrance
 dan transform feedback. Transisi warna theme sekitar 200ms.
 
@@ -105,11 +134,16 @@ langsung berhenti jika user memberi input.
 
 ## 7. Project / Experience Focus
 
-Saat interact, detail ditampilkan menggunakan DOM overlay/bottom sheet,
+Saat interact, detail ditampilkan menggunakan DOM dialog di tengah viewport,
 bukan seluruh informasi sebagai 3D text.
 
 Project overlay: - title; - image; - short description; - role; -
-technologies; - View Full Project; - Continue Exploring.
+technologies; - problem/solusi; - Read full project; - Continue exploring.
+
+World memakai charcoal/neutral dan helicopter neutral, dengan marker idle
+neutral, discovery low-opacity cyan, focus cyan, dan interaction cyan + CTA
+yang readable. HUD mengikuti typography/borders/radius kecil website;
+tidak ada shader, bloom, camera motion atau render-loop React state baru.
 
 Experience overlay: - organization; - position; - period; -
 summary/impact; - technologies; - related project optional.
@@ -130,7 +164,7 @@ Respect `prefers-reduced-motion`.
 
 Mobile: - virtual joystick kiri; - drag camera kanan; - interaction
 button besar; - safe-area aware HUD; - overlay sebagai bottom
-sheet/full-screen sheet; - lower default graphical quality.
+dialog di tengah viewport dengan internal scroll; - lower default graphical quality.
 
 Tablet: - touch-first controls; - portrait + landscape; - adaptive
 HUD; - 1--2 column normal content.
@@ -140,6 +174,10 @@ viewport menggunakan ruang secara efektif.
 
 2K/4K: - jangan stretch cards/text; - gunakan max-width, fluid spacing,
 background composition, dan controlled scale.
+
+Responsive checks: 360/390/430/768/820/1024/1280/1366/1440/1536/1920/2560/3840px,
+ditambah tablet landscape. Layout memakai constraints, grid/flex dan clamp(),
+bukan offsets per-device.
 
 ## 10. Loading & Failure
 

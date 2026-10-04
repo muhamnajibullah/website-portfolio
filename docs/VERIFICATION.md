@@ -70,9 +70,12 @@ Fixture SQL cloud tidak di-commit ke database. Draft dan PNG untuk browser smoke
 
 Artefak production lokal (diabaikan Git): `test-results/production-verification.json`, `test-results/production-web.png`, `test-results/production-mobile.png`, `test-results/production-cms.png`.
 
-## Forest theme and scroll recovery — 2026-10-04
+## Forest theme and scroll recovery — 2026-10-04 (visual superseded)
 
 `UI-THEME.md` menjadi sumber semantic palette public/CMS/HUD dan development world. Dark default, Light manual, preference `portfolio-theme`, dan early external `/theme.js` bekerja tanpa melonggarkan CSP. Saved theme diperiksa pada prerendered HTML dengan module React diblokir. Storage diblokir tetap memberi default Dark dan toggle yang usable. Foto/screenshot CMS tidak difilter atau direcolor.
+
+Palette pada tahap ini digantikan oleh revisi editorial di bawah; behavior
+theme, scroll recovery dan performance tetap dipertahankan.
 
 Shared scroll lock menyimpan overflow asli pada owner pertama dan memulihkannya saat owner terakhir keluar. Intro → world, Settings/detail nested, cancel, Normal Mode dan Escape tidak meninggalkan lock. Fokus kembali ke CTA asli dengan `preventScroll`; posisi sebelum masuk dipulihkan tanpa smooth-scroll. Callback exit stabil juga mencegah focus reset saat proximity berubah.
 
@@ -112,3 +115,55 @@ violations pada flows yang diuji, termasuk konfirmasi hapus. Pemeriksaan
 visual melalui agent-browser tidak menemukan browser errors pada intro
 desktop/mobile. Artefak ignored: `.vercel/centered-intro-{desktop,mobile}.png`,
 `test-results/cms-editor-centered.png`, `test-results/cms-delete-centered.png`.
+
+## Editorial redesign — 2026-10-04
+
+Sumber visual: `UI-UX-REVISION-DRIBBBLE.md`. Public portfolio memakai neutral
+dark/off-white/cyan, hero Software Engineer besar, portrait 4:5, split About,
+satu numbered/alternating showcase, Experience sebelum Tools, CTA 3D, serta
+Contact/footer editorial. CMS tetap dashboard dengan tokens/radius yang sama.
+Foto dan screenshot mempertahankan warna asli; konten real tetap menunggu CMS.
+
+Seluruh **31 browser tests pass**. Dark/Light dan horizontal overflow diperiksa
+pada 360/390/430/768/820/1024/1280/1366/1440/1536/1920/2560/3840px. Composition
+dengan tiga projects, portrait, cover dan gallery diperiksa pada 390/820/1440px
+menggunakan fixture berlabel khusus tes. Published projects tanpa flag Featured
+tetap tampil; empty state hanya muncul ketika belum ada project published.
+
+`pnpm check` final pass: ESLint, TypeScript strict seluruh workspace,
+14 unit/migration/RLS tests, build public/CMS dengan konfigurasi Supabase asli,
+dan initial JS **170.1 KB gzip** (budget 190 KB; Three.js tetap lazy).
+Build konfigurasi asli dipulihkan setelah fixture browser suite selesai.
+
+Mobile navigation diperiksa dengan keyboard, Escape, focus return, anchor,
+resize, menu → intro, centered dialog dan scroll unlock. Native intro,
+settings, project detail, CMS editor dan delete confirmation tetap di tengah.
+Axe tidak menemukan violations pada flows yang diuji, termasuk showcase,
+case study, CMS dashboard/editor dan Dark/Light. Contrast cyan pada Light
+Mode dan angka placeholder diperbaiki berdasarkan hasil audit.
+
+Flight keyboard/mouse, touch 390×844/820×1180/1180×820, altitude, proximity,
+detail, reset/exit, nested-dialog ownership dan pemulihan scroll tetap pass.
+World memakai neutral materials dan cyan discovery/focus/interaction; CSS
+dibaca saat theme berubah, tidak setiap frame. Tidak ada camera effect,
+post-processing, render-loop React state, font remote atau dependency baru.
+
+Case-study contract diuji melalui **14 unit/migration/RLS tests**: compatibility
+record lama, optional-field defaults, bounds, admin/non-admin/anon dan draft
+filtering. Engineering approach/XSS tetap teks yang escaped. Migration
+`20261004083321_editorial_case_study.sql` applied di linked Supabase; read-only
+`supabase/tests/editorial-check.sql` pass dan dry-run berikutnya menunjukkan
+remote database up to date. Tidak ada perubahan RLS/grants atau fixture yang
+dimasukkan ke database cloud pada revisi ini.
+
+Supabase advisors tidak menghasilkan ERROR. WARN yang tidak berasal dari
+penambahan kolom mencakup SECURITY DEFINER (`is_admin` diperlukan authorization),
+platform `rls_auto_enable`, leaked-password protection disabled, dan overlap
+published/admin SELECT policies. Revisi ini tidak mengubah Auth atau policies
+tersebut. Dependency audit: tidak ada known vulnerabilities.
+
+Artefak lokal ignored: `test-results/editorial-{dark,light}-{390,820,1440}.png`,
+`test-results/editorial-case-study-{390,820,1440}.png`,
+`test-results/editorial-menu-{390,820}.png`, serta screenshot CMS/world.
+Screenshot fixture tidak menjadi konten aplikasi. Pengujian touch perangkat
+fisik dan Lighthouse dengan aset/konten asli masih belum dilakukan.

@@ -43,6 +43,26 @@ describe('CMS trust boundaries', () => {
     ).toBe(false);
     expect(pointSchema.safeParse({ ...point, x: Infinity }).success).toBe(false);
   });
+  it('keeps older projects compatible and bounds optional case-study content', () => {
+    const project = { id, title: 'Test', slug: 'test' };
+    expect(projectSchema.parse(project)).toMatchObject({
+      engineering_approach: '',
+      key_features: [],
+      technical_challenges: [],
+      outcome: '',
+    });
+    expect(
+      projectSchema.safeParse({ ...project, engineering_approach: 'x'.repeat(5001) }).success,
+    ).toBe(false);
+    expect(projectSchema.safeParse({ ...project, outcome: 'x'.repeat(5001) }).success).toBe(false);
+    expect(
+      projectSchema.safeParse({ ...project, technical_challenges: Array(41).fill('Challenge') })
+        .success,
+    ).toBe(false);
+    expect(projectSchema.safeParse({ ...project, key_features: ['x'.repeat(1001)] }).success).toBe(
+      false,
+    );
+  });
   it('rejects privileged client keys and unsupported upload size/types', () => {
     expect(() => validatePublicKey('sb_secret_never-expose')).toThrow();
     expect(() =>

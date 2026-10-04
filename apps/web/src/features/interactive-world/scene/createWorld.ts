@@ -62,6 +62,7 @@ export function createWorld({
       frame: color('--world-frame'),
       idle: color('--world-marker-idle'),
       discovery: color('--world-marker-discovery'),
+      focus: color('--world-marker-focus'),
       interaction: color('--world-marker-interaction'),
       light: color('--neutral-white'),
     };
@@ -82,9 +83,9 @@ export function createWorld({
   const sun = new DirectionalLight(palette.light, 2.2);
   sun.position.set(15, 28, 10);
   scene.add(sun);
-  const green = new MeshStandardMaterial({ color: palette.ground, roughness: 1 });
+  const groundMaterial = new MeshStandardMaterial({ color: palette.ground, roughness: 1 });
   const concrete = new MeshStandardMaterial({ color: palette.pad, roughness: 1 });
-  const island = new Mesh(new CylinderGeometry(58, 55, 2, 48), green);
+  const island = new Mesh(new CylinderGeometry(58, 55, 2, 48), groundMaterial);
   island.position.y = -1.5;
   scene.add(island);
   const pad = new Mesh(new CylinderGeometry(5, 5, 0.15, 24), concrete);
@@ -108,9 +109,11 @@ export function createWorld({
   const markerColor = (zone: string | undefined) =>
     zone === 'interaction'
       ? palette.interaction
-      : zone === 'discovery' || zone === 'focus'
-        ? palette.discovery
-        : palette.idle;
+      : zone === 'focus'
+        ? palette.focus
+        : zone === 'discovery'
+          ? palette.discovery
+          : palette.idle;
   for (const point of points) {
     const group = new Group();
     group.position.set(point.x, 0, point.z);
@@ -124,7 +127,11 @@ export function createWorld({
     );
     building.position.y = 1;
     group.add(building);
-    const markerMaterial = new MeshStandardMaterial({ color: palette.idle, roughness: 0.8 });
+    const markerMaterial = new MeshStandardMaterial({
+      color: palette.idle,
+      roughness: 0.8,
+      transparent: true,
+    });
     markerMaterials.set(point.id, markerMaterial);
     const marker = new Mesh(pointGeometry, markerMaterial);
     marker.position.y = point.y + 1;
@@ -139,7 +146,7 @@ export function createWorld({
     palette = readPalette();
     sky.set(palette.sky);
     fog.color.set(palette.sky);
-    green.color.set(palette.ground);
+    groundMaterial.color.set(palette.ground);
     concrete.color.set(palette.pad);
     hMaterial.color.set(palette.discovery);
     projectMaterial.color.set(palette.building);
@@ -289,7 +296,11 @@ export function createWorld({
       const zone = proximity(state.position, point).zone;
       if (markerZones.get(point.id) !== zone) {
         markerZones.set(point.id, zone);
-        markerMaterials.get(point.id)?.color.set(markerColor(zone));
+        const material = markerMaterials.get(point.id);
+        if (material) {
+          material.color.set(markerColor(zone));
+          material.opacity = zone === 'discovery' ? 0.45 : 1;
+        }
       }
       projected.set(point.x, point.y + 2.2, point.z).project(camera);
       const visible =

@@ -61,7 +61,7 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
   await page.screenshot({ path: 'test-results/cms-dashboard-dark.png' });
   await page.getByRole('button', { name: 'Switch to light mode' }).click();
   // Audit the completed theme, rather than an interpolated foreground mid-transition.
-  await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(5, 31, 32)');
+  await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(16, 16, 16)');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: 'test-results/cms-dashboard-light.png' });
   await page
@@ -88,7 +88,7 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Switch to dark mode' }).click();
-  await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(218, 241, 222)');
+  await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(243, 243, 240)');
   await page.getByRole('button', { name: 'Add item' }).click();
   // Reopen a fresh draft after the theme switch; validation still governs all writes.
   await page.getByLabel('Title', { exact: true }).fill('Synthetic CMS test draft');
@@ -98,10 +98,24 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
   await page.getByLabel('Full description', { exact: true }).fill('<script>alert(1)</script>');
   await page.getByLabel('Project problems', { exact: true }).fill('Synthetic CMS problem.');
   await page.getByLabel('Solutions provided', { exact: true }).fill('Synthetic CMS solution.');
+  await page
+    .getByLabel('Engineering approach', { exact: true })
+    .fill('Synthetic CMS engineering approach.');
+  await page.getByLabel('Key features', { exact: true }).fill('Synthetic CMS feature.');
+  await page
+    .getByLabel('Technical challenges', { exact: true })
+    .fill('Synthetic CMS technical challenge.');
+  await page.getByLabel('Project outcome', { exact: true }).fill('Synthetic CMS outcome.');
   await page.getByRole('button', { name: 'Preview draft' }).click();
   await expect(page.getByText('<script>alert(1)</script>', { exact: true })).toBeVisible();
   await expect(page.getByText('Synthetic CMS problem.', { exact: true })).toBeVisible();
   await expect(page.getByText('Synthetic CMS solution.', { exact: true })).toBeVisible();
+  await expect(
+    page.getByText('Synthetic CMS engineering approach.', { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Synthetic CMS feature.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Synthetic CMS technical challenge.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Synthetic CMS outcome.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Edit content' }).click();
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('heading', { name: 'Synthetic CMS test draft' })).toBeVisible();
@@ -110,6 +124,10 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
     title: 'Synthetic CMS test draft',
     challenges: ['Synthetic CMS problem.'],
     solutions: ['Synthetic CMS solution.'],
+    engineering_approach: 'Synthetic CMS engineering approach.',
+    key_features: ['Synthetic CMS feature.'],
+    technical_challenges: ['Synthetic CMS technical challenge.'],
+    outcome: 'Synthetic CMS outcome.',
   });
   const draft = page
     .locator('.record-row')

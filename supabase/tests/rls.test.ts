@@ -1,5 +1,5 @@
 import { PGlite } from '@electric-sql/pglite';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
 const db = new PGlite();
 const admin = '00000000-0000-4000-8000-000000000010';
@@ -23,9 +23,9 @@ beforeAll(async () => {
     create function storage.foldername(value text) returns text[] language sql immutable as $$ select string_to_array(value, '/') $$;
     insert into auth.users values ('${admin}'), ('${nonAdmin}');
   `);
-  await db.exec(
-    await readFile(new URL('../migrations/202610030001_portfolio.sql', import.meta.url), 'utf8'),
-  );
+  const migrations = new URL('../migrations/', import.meta.url);
+  for (const file of (await readdir(migrations)).filter((name) => name.endsWith('.sql')).sort())
+    await db.exec(await readFile(new URL(file, migrations), 'utf8'));
   await db.exec(`insert into public.admin_profiles(user_id) values ('${admin}');
     insert into public.projects(id,title,slug,status) values ('${published}','Published test','published-test','published'), ('${draft}','Private draft','private-draft','draft');
     insert into public.interactive_points(project_id,x,z,status) values ('${published}',0,0,'published'), ('${draft}',10,10,'published');`);
@@ -103,6 +103,55 @@ describe('actual migration RLS allow and deny cases', () => {
         `insert into storage.objects(bucket_id,name) values ('public-media','${admin}/${published}.svg')`,
       ),
     ).rejects.toThrow();
+  });
+  it('case-study migration preserves existing rows, validation and publication restrictions', async () => {
+    await role('authenticated', admin);
+    expect(
+      (
+        await db.query(
+          'select engineering_approach,key_features,technical_challenges,outcome from public.projects where id=$1',
+          [published],
+        )
+      ).rows,
+    ).toEqual([
+      { engineering_approach: '', key_features: [], technical_challenges: [], outcome: '' },
+    ]);
+    await db.query(
+      'update public.projects set engineering_approach=$1,key_features=$2,technical_challenges=$3,outcome=$4 where id=$5',
+      [
+        'Verified approach',
+        ['Verified feature'],
+        ['Verified challenge'],
+        'Verified outcome',
+        published,
+      ],
+    );
+    await expect(
+      db.query('update public.projects set outcome=$1 where id=$2', ['x'.repeat(5001), published]),
+    ).rejects.toThrow();
+    await expect(
+      db.query('update public.projects set key_features=$1 where id=$2', [
+        Array(41).fill('Feature'),
+        published,
+      ]),
+    ).rejects.toThrow();
+    await expect(
+      db.exec(
+        `update public.projects set technical_challenges=array[null] where id='${published}'`,
+      ),
+    ).rejects.toThrow();
+    await role('authenticated', nonAdmin);
+    await db.query('update public.projects set outcome=$1 where id=$2', [
+      'Unauthorized change',
+      published,
+    ]);
+    await role('anon');
+    expect((await db.query('select id,outcome from public.projects')).rows).toEqual([
+      { id: published, outcome: 'Verified outcome' },
+    ]);
+    expect(
+      (await db.query('select outcome from public.projects where id=$1', [draft])).rows,
+    ).toEqual([]);
   });
   it('enrolled MFA administrators cannot access drafts or mutate with an aal1 token', async () => {
     await db.exec('reset role');

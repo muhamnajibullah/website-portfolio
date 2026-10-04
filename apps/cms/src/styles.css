@@ -1,10 +1,10 @@
-@import 'tailwindcss';
+﻿@import 'tailwindcss';
 @import '@portfolio/ui/styles.css';
 @source '../../../packages/ui/src';
 .mfa-card {
   margin-top: 28px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius);
   padding: 24px;
   background: var(--color-surface);
 }
@@ -37,7 +37,7 @@
   width: 36px;
   height: 36px;
   background: var(--accent-soft);
-  border-radius: 8px;
+  border-radius: var(--radius);
   color: var(--accent);
 }
 .auth-page {
@@ -80,7 +80,7 @@
 .auth-card {
   padding: 32px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--radius);
   background: var(--color-surface);
 }
 .auth-card h1 {
@@ -138,7 +138,7 @@
   border: 0;
   min-height: 44px;
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   display: flex;
   justify-content: space-between;
   text-align: left;
@@ -147,9 +147,9 @@
   gap: 12px;
 }
 .cms-sidebar nav button.selected {
-  background: var(--color-surface);
-  box-shadow: 0 1px 4px var(--color-shadow);
-  color: var(--accent);
+  background: var(--color-accent-muted);
+  box-shadow: inset 2px 0 0 var(--color-primary);
+  color: var(--color-accent-text);
   font-weight: 600;
 }
 .cms-sidebar nav button:hover {
@@ -210,7 +210,7 @@
   align-items: flex-start;
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   text-align: left;
   position: relative;
@@ -236,7 +236,7 @@
 }
 .dashboard-next {
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: var(--radius);
   padding: 32px;
   background: var(--color-surface);
   margin-top: 32px;
@@ -260,7 +260,7 @@
   padding: 10px;
   border: 1px solid var(--color-control-border);
   background: var(--color-surface);
-  border-radius: 8px;
+  border-radius: var(--radius);
   min-height: 44px;
 }
 .record-toolbar > span {
@@ -274,7 +274,7 @@
 .record-row {
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   display: flex;
   align-items: center;
@@ -352,7 +352,7 @@
 .upload-card {
   padding: 24px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--color-surface);
   margin-bottom: 28px;
   max-width: 640px;

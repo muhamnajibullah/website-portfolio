@@ -63,6 +63,10 @@ const multiline = new Set([
   'responsibilities',
   'challenges',
   'solutions',
+  'engineering_approach',
+  'key_features',
+  'technical_challenges',
+  'outcome',
 ]);
 const fieldLabels: Record<string, string> = {
   slug: 'Project URL name',
@@ -72,6 +76,10 @@ const fieldLabels: Record<string, string> = {
   about: 'About you',
   challenges: 'Project problems',
   solutions: 'Solutions provided',
+  engineering_approach: 'Engineering approach',
+  key_features: 'Key features',
+  technical_challenges: 'Technical challenges',
+  outcome: 'Project outcome',
   image_url: 'Image URL',
   image_alt: 'Image description (alt text)',
   image_width: 'Image width (pixels)',

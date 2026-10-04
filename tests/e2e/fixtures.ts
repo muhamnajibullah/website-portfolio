@@ -78,3 +78,62 @@ export const fixture = contentSchema.parse({
     }),
   ],
 });
+
+// These records and images are intercepted in browser tests; they never enter a CMS or build snapshot.
+export const editorialFixture = contentSchema.parse({
+  ...fixture,
+  profiles: [
+    {
+      ...fixture.profiles[0]!,
+      image_url: 'https://fixture.supabase.co/portrait.webp',
+      image_alt: 'Synthetic portrait layout fixture',
+    },
+  ],
+  projects: [
+    {
+      ...fixture.projects[0]!,
+      start_date: '2025-01-01',
+      image_url: 'https://fixture.supabase.co/project.webp',
+      image_alt: 'Synthetic project image fixture',
+      engineering_approach: '<script>window.caseStudyXss = true</script>',
+      key_features: ['Browser test feature'],
+      technical_challenges: ['Browser test technical challenge'],
+      outcome: 'Browser test outcome',
+    },
+    {
+      ...fixture.projects[0]!,
+      id: uuid(8),
+      slug: 'second-browser-project',
+      title: 'Second synthetic browser project',
+      image_url: 'https://fixture.supabase.co/second.webp',
+      image_alt: 'Second synthetic image',
+      start_date: '2026-01-01',
+    },
+    {
+      ...fixture.projects[0]!,
+      id: uuid(9),
+      slug: 'third-browser-project',
+      title: 'Third synthetic browser project',
+      image_url: 'https://fixture.supabase.co/third.webp',
+      image_alt: 'Third synthetic image',
+      start_date: '2026-02-01',
+    },
+  ],
+  media_metadata: [
+    {
+      id: uuid(10),
+      status: 'published',
+      sort_order: 0,
+      path: `${uuid(1)}/${uuid(10)}.webp`,
+      url: 'https://fixture.supabase.co/gallery.webp',
+      alt: 'Synthetic gallery fixture',
+      width: 1200,
+      height: 800,
+      mime_type: 'image/webp',
+      size_bytes: 1000,
+    },
+  ],
+  project_media: [
+    { id: uuid(11), status: 'published', sort_order: 0, project_id: uuid(2), media_id: uuid(10) },
+  ],
+});

@@ -8,7 +8,7 @@ test('saved theme colors the prerendered page before React loads', async ({ page
   await page.route('**/assets/index-*.js', (route) => route.abort());
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(218, 241, 222)');
+  await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(245, 245, 241)');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.locator('canvas')).toHaveCount(0);
 });

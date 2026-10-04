@@ -4,6 +4,10 @@ Implementasi React + TypeScript strict + Vite + Tailwind, dengan public web, CMS
 
 Panduan produk tetap berada di root: `PRD.md`, `DESIGN.md`, `ARCHITECTURE.md`, `SECURITY.md`, dan `AGENTS.md`. Tidak ada identitas, foto, project, atau pengalaman fiktif pada aplikasi. Fixture sintetis hanya digunakan dalam tes.
 
+Arah visual terbaru mengikuti [UI-UX-REVISION-DRIBBBLE.md](UI-UX-REVISION-DRIBBBLE.md):
+dark editorial neutral, off-white typography, cyan, showcase project besar,
+dan Light Mode yang accessible. Pedoman ini menggantikan palette forest.
+
 ## Jalankan lokal
 
 Prasyarat: Node.js 22.21+ dan pnpm 10.32.1.
@@ -31,7 +35,7 @@ Panduan dashboard langkah demi langkah, pengisian card project, dan konfigurasi 
 
 1. Buat Supabase project. Salin `.env.example` ke `apps/web/.env.local` dan `apps/cms/.env.local`.
 2. Isi `VITE_SUPABASE_URL`, **publishable key**, dan `VITE_SITE_URL`. Jangan menggunakan secret/service-role key. Restart Vite setelah mengubah env.
-3. Apply `supabase/migrations/202610030001_portfolio.sql` melalui migration tooling Supabase atau SQL Editor pada project baru. Dengan CLI: `supabase link --project-ref <ref>`, lalu `supabase db push`. CLI dan Docker dibutuhkan hanya untuk menjalankan Supabase lokal (`supabase start`).
+3. Apply seluruh file `supabase/migrations/` secara berurutan melalui migration tooling Supabase, termasuk field case study editorial. Dengan CLI: `supabase link --project-ref <ref>`, lalu `supabase db push --dry-run` dan `supabase db push`. Pada project yang sudah linked, push hanya migrations yang belum diterapkan. Docker dibutuhkan hanya untuk menjalankan Supabase lokal (`supabase start`).
 4. Nonaktifkan public signup pada Supabase Auth. Buat user administrator dari dashboard Auth dengan password yang kuat.
 5. Dari SQL Editor/trusted database session, grant administrator untuk UUID user tersebut:
 
@@ -49,6 +53,10 @@ Bucket `public-media` hanya untuk gambar yang boleh diakses publik. Upload PNG/J
 ## Interactive Mode
 
 Tujuan project menampilkan nama saat discovery dan preview card ringkasan/tools saat helicopter mendekat. **Open details / E** membuka card DOM dengan seluruh problem, solusi dan tools dari CMS. Card Normal Mode menampilkan problem/solusi pertama; halaman `/projects/:slug` menyajikan semua poin. CMS menggunakan label **Project problems** (`challenges`) dan **Solutions provided** (`solutions`); schema database tetap sama.
+
+Halaman case study juga mendukung **Engineering approach**, **Key features**,
+**Technical challenges**, dan **Project outcome**. Field ini opsional dan
+dapat diisi dari Projects; fitur/tantangan menerima satu poin per baris.
 
 - `W/S`: maju/mundur, `A/D`: belok, mouse/drag: kamera.
 - `↑/↓` atau `Space/Shift`: altitude; `E`: detail; `R`: reset; `Escape`: Normal Mode.
@@ -84,7 +92,7 @@ Konfigurasikan Supabase Auth rate limits serta Vercel WAF/challenge untuk auth/C
 
 Unit tests memeriksa validation, privilege keys/uploads, flight movement/bounds dan proximity. RLS tests menjalankan **migration yang sama** pada PostgreSQL WASM (PGlite), dengan contract `auth/storage` minimal; menguji anon, non-admin, admin, MFA dan linked drafts. Ini tidak menggantikan smoke test terhadap Supabase Auth/Storage nyata setelah project tersedia.
 
-Browser tests memeriksa CMS sign-in/validation/draft preview dengan transport mock, fallback WebGL, import lazy, WASD/proximity/detail/reset/exit, pointer/touch UI, XSS text rendering, aksesibilitas axe, dan overflow pada 360/390/430/768/820/1024/1366/1440/1920/2560/3840px. Lakukan pemeriksaan manual pada perangkat touch nyata sebelum production. Laporan browser dan screenshot ada di `playwright-report/` dan `test-results/` setelah tes.
+Browser tests memeriksa CMS sign-in/validation/draft preview dengan transport mock, fallback WebGL, import lazy, WASD/proximity/detail/reset/exit, pointer/touch UI, XSS text rendering, aksesibilitas axe, dan overflow pada 360/390/430/768/820/1024/1280/1366/1440/1536/1920/2560/3840px. Editorial tests juga memeriksa multi-project composition, imagery, case study dan mobile navigation pada Dark/Light. Lakukan pemeriksaan manual pada perangkat touch nyata sebelum production. Laporan browser dan screenshot ada di `playwright-report/` dan `test-results/` setelah tes.
 
 CI menjalankan locked install, lint, strict typecheck, unit/RLS tests, kedua build, bundle budget, audit, dan browser checks. Lighthouse target di PRD perlu diukur pada deployment representatif dengan konten/aset asli; skor lokal placeholder bukan jaminan production.
 

@@ -182,9 +182,21 @@ export default function InteractiveWorld({
         <span className="placeholder-label">Temporary 3D models</span>
       </aside>
       <div className="world-status" role="status">
-        {near
-          ? `${pointTitle(near.point)} · ${near.zone === 'interaction' ? 'Ready to open' : near.zone === 'focus' ? 'Move closer to view' : 'Destination found'}`
-          : 'Exploring the world'}
+        <span className="world-status-label">
+          {near
+            ? near.point.project_id
+              ? 'Project nearby'
+              : 'Work experience nearby'
+            : 'Free exploration'}
+        </span>
+        <strong>{near ? pointTitle(near.point) : 'Explore the portfolio'}</strong>
+        <span className="world-status-action">
+          {near
+            ? near.zone === 'interaction'
+              ? 'Press E or choose Open details'
+              : 'Move closer to view details'
+            : 'Fly toward a marker to discover the work'}
+        </span>
       </div>
       <div className="world-bottom">
         <div className="desktop-help">
