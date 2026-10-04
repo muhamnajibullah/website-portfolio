@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { auditAccessibility } from './accessibility';
 import { fixture } from './fixtures';
 import { expectCenteredDialog } from './dialog';
 import type { Content } from '../../packages/types/src';
@@ -57,12 +57,12 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
   await page.getByLabel('Password', { exact: true }).fill('test-only-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Manage your portfolio.' })).toBeVisible();
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect((await auditAccessibility(page)).violations).toEqual([]);
   await page.screenshot({ path: 'test-results/cms-dashboard-dark.png' });
   await page.getByRole('button', { name: 'Switch to light mode' }).click();
   // Audit the completed theme, rather than an interpolated foreground mid-transition.
   await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(16, 16, 16)');
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect((await auditAccessibility(page)).violations).toEqual([]);
   await page.screenshot({ path: 'test-results/cms-dashboard-light.png' });
   await page
     .getByRole('navigation', { name: 'CMS sections' })
@@ -85,7 +85,7 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('alert')).toBeVisible();
   expect(payloads).toHaveLength(0);
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect((await auditAccessibility(page)).violations).toEqual([]);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Switch to dark mode' }).click();
   await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(243, 243, 240)');
@@ -93,7 +93,7 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
   // Reopen a fresh draft after the theme switch; validation still governs all writes.
   await page.getByLabel('Title', { exact: true }).fill('Synthetic CMS test draft');
   await page.getByLabel('Project URL name', { exact: true }).fill('synthetic-cms-test-draft');
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect((await auditAccessibility(page)).violations).toEqual([]);
   await page.getByLabel('Live project URL', { exact: true }).fill('');
   await page.getByLabel('Full description', { exact: true }).fill('<script>alert(1)</script>');
   await page.getByLabel('Project problems', { exact: true }).fill('Synthetic CMS problem.');
@@ -139,7 +139,7 @@ test('CMS validates drafts, previews safely and confirms deletion in centered di
     await page.setViewportSize({ width, height: 844 });
     await expectCenteredDialog(confirmation);
   }
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect((await auditAccessibility(page)).violations).toEqual([]);
   await page.screenshot({ path: 'test-results/cms-delete-centered.png' });
   await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
   expect(deletions).toHaveLength(0);

@@ -176,8 +176,10 @@ reset/exit, focus return dan scroll recovery pass. Check ini read-only terhadap
 CMS/data cloud; artefak ada di `.vercel/editorial-production-verification.json`
 dan `.vercel/editorial-live-*.png` (ignored).
 
-Audit theme di CI menunggu opacity panel CMS mencapai 1 dan computed cyan
-akhir sebelum axe dijalankan. Animasi masuk dapat membuat contrast hasil
-compositing belum memenuhi batas walaupun computed foreground sudah final.
-Pemeriksaan membaca panel penuh sesudah entrance/transisi. Tidak ada
+Shared browser accessibility audit menunggu UI tersedia dan finite Web
+Animations selesai sebelum menjalankan axe; animation yang infinite tidak
+ditunggu. Ini mencakup entrance panel CMS, hero/dialog dan transisi warna.
+Animasi masuk dapat membuat contrast hasil compositing belum memenuhi batas
+walaupun computed foreground sudah final. Pemeriksaan membaca UI yang tampil
+penuh sesudah entrance/transisi. Tidak ada
 violation yang disembunyikan atau rules axe yang dinonaktifkan.

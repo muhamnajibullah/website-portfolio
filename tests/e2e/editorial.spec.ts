@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { auditAccessibility } from './accessibility';
 import { editorialFixture } from './fixtures';
 import { expectCenteredDialog } from './dialog';
 
@@ -53,7 +53,7 @@ for (const width of [390, 820, 1440]) {
         first.getByText(editorialFixture.projects[0]!.solutions[0]!, { exact: true }),
       ).toBeVisible();
       await expect(first.getByText('Browser test tool', { exact: true })).toBeVisible();
-      expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      expect((await auditAccessibility(page)).violations).toEqual([]);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
       await page.screenshot({
         path: `test-results/editorial-${theme}-${width}.png`,
@@ -89,7 +89,7 @@ for (const width of [390, 820, 1440]) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect((await auditAccessibility(page)).violations).toEqual([]);
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
     await page.screenshot({
       path: `test-results/editorial-case-study-${width}.png`,
@@ -113,7 +113,7 @@ test('mobile navigation supports keyboard, centered dialogs and scroll recovery'
     await expect(menu.getByRole('button', { name: 'Close dialog' })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(menu.getByRole('link', { name: /projects/i })).toBeFocused();
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect((await auditAccessibility(page)).violations).toEqual([]);
     await page.screenshot({ path: `test-results/editorial-menu-${width}.png` });
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();

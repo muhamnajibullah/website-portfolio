@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { auditAccessibility } from './accessibility';
 import { fixture } from './fixtures';
 import { expectCenteredDialog } from './dialog';
 
@@ -85,11 +85,11 @@ for (const theme of ['dark', 'light'] as const) {
     await expect(
       page.getByRole('heading', { name: 'Synthetic browser test project' }),
     ).toBeVisible();
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect((await auditAccessibility(page)).violations).toEqual([]);
     await page.screenshot({ path: `test-results/portfolio-${theme}.png`, fullPage: true });
     await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
     await expectCenteredDialog(page.getByRole('dialog'));
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect((await auditAccessibility(page)).violations).toEqual([]);
     await page.getByRole('button', { name: 'Enter world' }).click();
     await expect(page.locator('canvas')).toBeVisible();
     await page.screenshot({ path: `test-results/world-${theme}.png` });
@@ -118,7 +118,7 @@ for (const theme of ['dark', 'light'] as const) {
       .click();
     await page.goto('/projects/synthetic-test-project');
     await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect((await auditAccessibility(page)).violations).toEqual([]);
     await page.goto('http://127.0.0.1:4174');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     if (theme === 'light') await page.getByRole('button', { name: 'Switch to light mode' }).click();
@@ -133,7 +133,7 @@ for (const theme of ['dark', 'light'] as const) {
       'color',
       theme === 'dark' ? 'rgb(0, 209, 209)' : 'rgb(0, 118, 118)',
     );
-    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    expect((await auditAccessibility(page)).violations).toEqual([]);
     await page.screenshot({ path: `test-results/cms-${theme}.png`, fullPage: true });
   });
 }

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import { auditAccessibility } from './accessibility';
 import { fixture } from './fixtures';
 import { expectCenteredDialog } from './dialog';
 
@@ -97,7 +97,7 @@ test('Three.js loads after Enter World; controls, proximity, details and exit wo
   for (const value of [...fixture.projects[0]!.challenges, ...fixture.projects[0]!.solutions])
     await expect(details.getByText(value, { exact: true })).toBeVisible();
   await expect(details.getByText('Browser test tool', { exact: true })).toBeVisible();
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect((await auditAccessibility(page)).violations).toEqual([]);
   await page.screenshot({ path: 'test-results/project-details-desktop.png' });
   await expect(page.getByRole('link', { name: 'View full project' })).toHaveAttribute(
     'href',
@@ -221,21 +221,19 @@ test('WebGL failure gracefully returns to the normal portfolio', async ({ page }
 });
 test('normal mode, intro and CMS setup meet basic WCAG checks', async ({ page }) => {
   await page.goto('/');
-  expect(
-    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
-      .violations,
-  ).toEqual([]);
+  expect((await auditAccessibility(page, ['wcag2a', 'wcag2aa', 'wcag21aa'])).violations).toEqual(
+    [],
+  );
   await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
-  expect(
-    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
-      .violations,
-  ).toEqual([]);
+  await expectCenteredDialog(page.getByRole('dialog', { name: 'Explore the portfolio in 3D' }));
+  expect((await auditAccessibility(page, ['wcag2a', 'wcag2aa', 'wcag21aa'])).violations).toEqual(
+    [],
+  );
   await page.keyboard.press('Escape');
   await page.goto('http://127.0.0.1:4174');
-  expect(
-    (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
-      .violations,
-  ).toEqual([]);
+  expect((await auditAccessibility(page, ['wcag2a', 'wcag2aa', 'wcag21aa'])).violations).toEqual(
+    [],
+  );
 });
 test('CMS content is rendered as text and project pages retain stable URLs', async ({ page }) => {
   await page.route('**/content.json', (route) => route.fulfill({ json: fixture }));
