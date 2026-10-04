@@ -91,7 +91,9 @@ export class PortfolioRepository {
     if (!alt.trim() || alt.length > 300)
       throw new Error('Provide an image description of 1–300 characters.');
     // Decode before uploading; MIME labels alone do not establish that a file is an image.
-    const bitmap = await createImageBitmap(file);
+    const bitmap = await createImageBitmap(file).catch(() => {
+      throw new Error('Could not read this image. Choose a valid PNG, JPEG, or WebP file.');
+    });
     const width = bitmap.width,
       height = bitmap.height;
     bitmap.close();
@@ -113,28 +115,29 @@ export class PortfolioRepository {
     const extension = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' }[file.type];
     const id = crypto.randomUUID(),
       path = `${user.id}/${id}.${extension}`;
+    const { data } = this.client.storage.from('public-media').getPublicUrl(path);
+    const media = tableSchemas.media_metadata.parse({
+      id,
+      path,
+      url: data.publicUrl,
+      alt,
+      width,
+      height,
+      mime_type: file.type,
+      size_bytes: file.size,
+      status: 'draft',
+      sort_order: 0,
+    });
     const { error } = await this.client.storage
       .from('public-media')
       .upload(path, file, { contentType: file.type, upsert: false });
     if (error) throw new Error('Upload failed. Please check your permissions and file.');
-    const { data } = this.client.storage.from('public-media').getPublicUrl(path);
     try {
-      await this.save('media_metadata', {
-        id,
-        path,
-        url: data.publicUrl,
-        alt,
-        width,
-        height,
-        mime_type: file.type,
-        size_bytes: file.size,
-        status: 'draft',
-        sort_order: 0,
-      });
+      await this.save('media_metadata', media);
     } catch (error) {
       await this.client.storage.from('public-media').remove([path]);
       throw error;
     }
-    return data.publicUrl;
+    return media;
   }
 }

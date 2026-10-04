@@ -3,6 +3,7 @@ import type { Content, ContentRecord, TableName } from '@portfolio/types';
 import { tableSchemas } from '@portfolio/validation';
 import { Dialog, Icon } from '@portfolio/ui';
 import { pageMetadata } from '@portfolio/seo';
+import { ImageUpload } from '../media/ImageUpload';
 
 export function recordLabel(record: ContentRecord | Record<string, unknown>) {
   for (const key of ['name', 'title', 'organization', 'label', 'site_name', 'alt', 'path']) {
@@ -124,6 +125,7 @@ export function RecordEditor({
   content,
   onSave,
   onClose,
+  onMediaUploaded,
   busy,
 }: {
   table: TableName;
@@ -131,15 +133,21 @@ export function RecordEditor({
   content: Content;
   onSave: (value: unknown) => Promise<void>;
   onClose: () => void;
+  onMediaUploaded: () => Promise<void>;
   busy: boolean;
 }) {
   const [value, setValue] = useState(record),
     [error, setError] = useState(''),
-    [preview, setPreview] = useState(false);
+    [preview, setPreview] = useState(false),
+    [uploading, setUploading] = useState(false),
+    [sharingImageDescription, setSharingImageDescription] = useState('');
+  const imageField =
+    'image_url' in value ? 'image_url' : 'og_image_url' in value ? 'og_image_url' : null;
   const change = (key: string, data: unknown) =>
     setValue((current) => ({ ...current, [key]: data }));
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (busy || uploading) return;
     setError('');
     const result = tableSchemas[table].safeParse(value);
     if (!result.success) {
@@ -190,12 +198,14 @@ export function RecordEditor({
     <Dialog
       title={recordLabel(value) === value.id ? 'Add item' : recordLabel(value)}
       onClose={onClose}
+      dismissible={!busy && !uploading}
       className="editor-dialog"
     >
       <div className="editor-tabs">
         <button
           className={`button ${!preview ? 'primary' : ''}`}
           type="button"
+          disabled={busy || uploading}
           onClick={() => setPreview(false)}
         >
           Edit content
@@ -203,6 +213,7 @@ export function RecordEditor({
         <button
           className={`button ${preview ? 'primary' : ''}`}
           type="button"
+          disabled={busy || uploading}
           onClick={() => setPreview(true)}
         >
           Preview draft
@@ -241,12 +252,17 @@ export function RecordEditor({
         <form onSubmit={submit}>
           <div className="editor-fields">
             {Object.entries(value)
-              .filter(([key]) => key !== 'id')
+              .filter(
+                ([key]) => key !== 'id' && !(imageField === 'image_url' && key === 'image_alt'),
+              )
               .map(([key, data]) => {
                 const id = `field-${key}`,
                   reference = referenceTables[key];
                 return (
-                  <div className={`field ${multiline.has(key) ? 'wide' : ''}`} key={key}>
+                  <div
+                    className={`field ${multiline.has(key) || key === imageField ? 'wide' : ''}`}
+                    key={key}
+                  >
                     <label htmlFor={id}>{humanize(key)}</label>
                     {key === 'status' ? (
                       <select
@@ -380,11 +396,50 @@ export function RecordEditor({
                         Hold Ctrl on Windows or Command on Mac to select more than one project.
                       </small>
                     )}
-                    {key === 'image_url' && (
-                      <small>
-                        Paste the uploaded image URL from Media Library. Add its description, width,
-                        and height below.
-                      </small>
+                    {key === imageField && (
+                      <>
+                        <small>
+                          Upload below to fill this URL automatically, or paste an existing image
+                          URL. Save changes to attach the image.
+                        </small>
+                        <ImageUpload
+                          image={{
+                            url: String(data ?? ''),
+                            alt:
+                              imageField === 'image_url'
+                                ? String(value.image_alt ?? '')
+                                : sharingImageDescription,
+                            width: Number(value.image_width ?? 1200),
+                            height: Number(value.image_height ?? 630),
+                          }}
+                          description={
+                            imageField === 'image_url'
+                              ? String(value.image_alt ?? '')
+                              : sharingImageDescription
+                          }
+                          onDescriptionChange={(description) =>
+                            imageField === 'image_url'
+                              ? change('image_alt', description)
+                              : setSharingImageDescription(description)
+                          }
+                          disabled={busy}
+                          onBusyChange={setUploading}
+                          onUploaded={(media) => {
+                            setValue((current) => ({
+                              ...current,
+                              [imageField]: media.url,
+                              ...(imageField === 'image_url'
+                                ? {
+                                    image_alt: media.alt,
+                                    image_width: media.width,
+                                    image_height: media.height,
+                                  }
+                                : {}),
+                            }));
+                            void onMediaUploaded();
+                          }}
+                        />
+                      </>
                     )}
                     {key === 'status' && (
                       <small>
@@ -402,11 +457,11 @@ export function RecordEditor({
             </p>
           )}
           <div className="editor-save">
-            <button className="button primary" disabled={busy}>
+            <button className="button primary" disabled={busy || uploading}>
               {busy ? 'Saving…' : 'Save changes'}
               <Icon name="check" />
             </button>
-            <button type="button" className="button" onClick={onClose}>
+            <button type="button" className="button" onClick={onClose} disabled={busy || uploading}>
               Cancel
             </button>
           </div>

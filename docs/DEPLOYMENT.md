@@ -101,20 +101,20 @@ Buka portfolio `http://localhost:5173` dan CMS `http://localhost:5174`. Login CM
 
 ## 4. Isi card project dari CMS
 
-| Informasi pengunjung  | Field / menu CMS                                                  |
-| --------------------- | ----------------------------------------------------------------- |
-| Nama project          | Projects → Title                                                  |
-| Deskripsi singkat     | Projects → Summary                                                |
-| Problem project       | Projects → Project problems (field database `challenges`)         |
-| Solusi yang diberikan | Projects → Solutions provided (`solutions`)                       |
-| Tools yang digunakan  | Technologies + Project technologies                               |
-| Detail pekerjaan Anda | Projects → Role, Responsibilities, Description                    |
-| Pendekatan teknis     | Projects → Engineering approach                                   |
-| Fitur utama           | Projects → Key features                                           |
-| Tantangan teknis      | Projects → Technical challenges                                   |
-| Hasil project         | Projects → Project outcome                                        |
-| Gambar project        | Media Library → upload, lalu salin URL/alt/dimensions ke Projects |
-| Tujuan helicopter     | Interactive points → Project id, posisi, radius, Enabled          |
+| Informasi pengunjung  | Field / menu CMS                                          |
+| --------------------- | --------------------------------------------------------- |
+| Nama project          | Projects → Title                                          |
+| Deskripsi singkat     | Projects → Summary                                        |
+| Problem project       | Projects → Project problems (field database `challenges`) |
+| Solusi yang diberikan | Projects → Solutions provided (`solutions`)               |
+| Tools yang digunakan  | Technologies + Project technologies                       |
+| Detail pekerjaan Anda | Projects → Role, Responsibilities, Description            |
+| Pendekatan teknis     | Projects → Engineering approach                           |
+| Fitur utama           | Projects → Key features                                   |
+| Tantangan teknis      | Projects → Technical challenges                           |
+| Hasil project         | Projects → Project outcome                                |
+| Gambar project        | Projects → Add/Edit item → Image file → Upload image      |
+| Tujuan helicopter     | Interactive points → Project id, posisi, radius, Enabled  |
 
 Problem dan solusi menerima satu poin per baris. Preview draft menampilkan kedua field sebelum disimpan. Semua informasi memakai konten CMS; tidak ada project contoh yang dipublikasikan otomatis.
 
@@ -134,6 +134,29 @@ Urutan yang mudah:
 6. Muat ulang portfolio. Card Normal Mode menampilkan nama, ringkasan, problem dan solusi pertama, serta tools. Halaman detail menampilkan seluruh problem/solusi. Dalam dunia helicopter, nama tujuan muncul saat ditemukan; preview card muncul ketika mendekat. Tekan **E** atau **Open details** untuk membaca semua problem, solusi dan tools. Tidak perlu landing presisi.
 
 Jika tools atau tujuan belum terlihat, cek bahwa **parent dan relasi sama-sama published**, point Enabled, dan project yang dipilih benar. RLS sengaja menyembunyikan relasi ke draft. Aktifkan authenticator/MFA dari CMS setelah login pertama.
+
+### Upload gambar langsung dari form
+
+1. Buka **Profile**, **Projects**, **Work experiences**, atau **Website settings**, lalu pilih **Add item** atau **Edit item**.
+2. Pada bagian gambar, pilih file melalui **Image file** dan isi **Image description (alt text)** dengan deskripsi gambar.
+3. Klik **Upload image**. PNG, JPEG, dan WebP maksimal 5 MB diterima. Setelah berhasil, preview muncul dan URL terisi otomatis. Untuk profil, project, dan pengalaman kerja, alt text serta ukuran gambar juga terisi otomatis.
+4. Klik **Save changes** untuk memasang gambar pada record. Upload sendiri tidak menyimpan atau mempublikasikan perubahan record. Jika masih draft, pilih **Publish** setelah konten siap.
+
+Selama upload, tunggu proses selesai sebelum menyimpan atau menutup editor.
+Kegagalan upload tidak mengganti URL dan ukuran gambar sebelumnya; file yang
+dipilih tetap tersedia untuk dicoba lagi. Semua hasil upload juga disimpan
+sebagai draft di **Media Library**. Jika edit dibatalkan, file tetap ada di
+library untuk digunakan kemudian.
+
+Untuk gallery, upload melalui **Media Library**, publish gambar yang siap,
+lalu buat dan publish relasi pada **Project galleries** dengan memilih project
+dan gambar tersebut. Cover dapat dipakai langsung dari form project tanpa
+relasi gallery. URL gambar lama masih dapat ditempel secara manual.
+
+Bucket `public-media` berisi gambar publik: file dapat diakses melalui URL
+segera setelah di-upload, termasuk ketika metadata atau record masih draft.
+Menghapus record metadata tidak menghapus file Storage; hapus file dari
+Supabase Storage setelah memastikan gambar tidak digunakan record lain.
 
 ## 5. Hubungkan repository GitHub ke Vercel
 

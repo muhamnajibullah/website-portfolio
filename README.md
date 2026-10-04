@@ -48,7 +48,7 @@ insert into public.admin_profiles(user_id) values ('UUID-DARI-AUTH-USERS');
 8. Gunakan `Sort order` untuk reorder. `Edit / preview` memberi preview draft di dalam CMS yang terautentikasi. Publish/unpublish/archive tersedia dari listing.
 9. Aktifkan authenticator dari Dashboard. Setelah MFA enrolled, kebijakan database menolak akses draft dan mutation dengan token `aal1`.
 
-Bucket `public-media` hanya untuk gambar yang boleh diakses publik. Upload PNG/JPEG/WebP maksimal 5 MB, diverifikasi MIME, signature, decode dan dimensions di CMS. URL publik dapat disalin ke image URL/OG image fields. Metadata draft tidak membuat file dalam public bucket menjadi private. Delete record metadata tidak menghapus storage object; pembersihan file dilakukan dari Storage dashboard setelah memastikan tidak ada referensi.
+Bucket `public-media` hanya untuk gambar yang boleh diakses publik. Upload PNG/JPEG/WebP maksimal 5 MB, diverifikasi MIME, signature, decode dan dimensions di CMS. Tombol **Upload image** tersedia langsung di form Profile, Projects, Work experiences dan Website settings: pilih file, isi alt text, lalu upload. URL terisi otomatis; form dengan image fields juga mengisi alt dan dimensions. Klik **Save changes** untuk memasang gambar pada record. Semua upload masuk ke Media Library sebagai draft, termasuk saat edit dibatalkan. Media Library tetap menyediakan upload untuk gallery dan URL yang dapat digunakan kembali. Metadata draft tidak membuat file dalam public bucket menjadi private. Delete record metadata tidak menghapus storage object; pembersihan file dilakukan dari Storage dashboard setelah memastikan tidak ada referensi.
 
 ## Interactive Mode
 

@@ -1,66 +1,32 @@
-import { useState, type FormEvent } from 'react';
-import { repository } from '../../services/client';
+import { useState } from 'react';
+import type { Content } from '@portfolio/types';
+import { ImageUpload } from './ImageUpload';
+
 export function MediaUpload({ onUploaded }: { onUploaded: () => Promise<void> }) {
-  const [busy, setBusy] = useState(false),
-    [message, setMessage] = useState(''),
-    [error, setError] = useState('');
-  async function upload(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setMessage('');
-    setError('');
-    setBusy(true);
-    const form = event.currentTarget,
-      data = new FormData(form),
-      file = data.get('image');
-    try {
-      if (!(file instanceof File) || !file.size)
-        throw new Error('Select an image before uploading.');
-      const url = await repository!.upload(file, String(data.get('alt') ?? ''));
-      setMessage(`Image uploaded. Copy this URL to use it in your profile or project: ${url}`);
-      form.reset();
-      await onUploaded();
-    } catch (error) {
-      setError(
-        error instanceof Error ? error.message : 'Could not upload the image. Please try again.',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
+  const [description, setDescription] = useState('');
+  const [image, setImage] = useState<Content['media_metadata'][number]>();
   return (
-    <form className="upload-card" onSubmit={upload}>
-      <h2>Upload an image</h2>
+    <section className="upload-card" aria-labelledby="media-upload-title">
+      <h2 id="media-upload-title">Add to Media Library</h2>
       <p className="small-text">
-        Choose a PNG, JPEG, or WebP image up to 5 MB. Anyone with the image link can view it, even
-        while the library item is a draft.
+        Upload images for your portfolio and project galleries. You can also upload directly while
+        editing a profile, project, work experience, or website settings.
       </p>
-      <div className="field">
-        <label htmlFor="image">Image</label>
-        <input
-          id="image"
-          name="image"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          required
-        />
-      </div>
-      <div className="field">
-        <label htmlFor="alt">Image description (alt text)</label>
-        <input id="alt" name="alt" required maxLength={300} />
-      </div>
-      <button className="button primary" disabled={busy}>
-        {busy ? 'Uploading…' : 'Upload image'}
-      </button>
-      {message && (
+      <ImageUpload
+        description={description}
+        onDescriptionChange={setDescription}
+        image={image}
+        onUploaded={(media) => {
+          setImage(media);
+          setDescription('');
+          void onUploaded();
+        }}
+      />
+      {image && (
         <p className="notice text-block" role="status">
-          {message}
+          Saved to Media Library as a draft. To reuse it, copy this image URL: {image.url}
         </p>
       )}
-      {error && (
-        <p className="notice error" role="alert">
-          {error}
-        </p>
-      )}
-    </form>
+    </section>
   );
 }

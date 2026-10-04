@@ -306,6 +306,7 @@ export function Dashboard() {
           busy={save.isPending}
           onSave={(input) => save.mutateAsync(input)}
           onClose={() => setRecord(null)}
+          onMediaUploaded={refresh}
         />
       )}
       {deletion && (

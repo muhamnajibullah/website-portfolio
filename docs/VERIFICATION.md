@@ -183,3 +183,41 @@ Animasi masuk dapat membuat contrast hasil compositing belum memenuhi batas
 walaupun computed foreground sudah final. Pemeriksaan membaca UI yang tampil
 penuh sesudah entrance/transisi. Tidak ada
 violation yang disembunyikan atau rules axe yang dinonaktifkan.
+
+## Direct image upload in CMS — 4 Oktober 2026
+
+Tombol **Upload image** tersedia di editor Profile, Projects, Work experiences
+dan Website settings, serta Media Library. Editor menampilkan preview, mengisi
+URL, alt dan ukuran dari hasil upload tervalidasi, lalu menunggu **Save changes**
+untuk menyimpan record. Website settings hanya menyimpan OG URL; deskripsi
+gambar tetap disimpan di metadata Media Library. Upload tidak mengubah status
+publikasi record dan metadata baru tetap draft. Manual URL dan gallery workflow
+tetap tersedia.
+
+Lint, strict typecheck, **14 unit/migration/RLS tests**, production build dan
+budget check pass. Full browser suite **34 tests** pass. Setelah merapikan
+tipografi panel dan live status, **4 CMS browser tests** dijalankan kembali dan
+pass, termasuk encode/decode PNG, JPEG dan WebP melalui browser. Auth, Storage
+dan Database untuk browser test dimock pada transport; tidak ada test image
+atau record yang ditulis ke Supabase production pada revisi ini.
+
+Pengujian mencakup URL/alt/dimensions otomatis, preview, file metadata draft,
+generated user/UUID path, `upsert: false`, record tidak tersimpan sebelum Save,
+SVG/oversize/corrupt/signature mismatch/missing alt rejection, Storage denial,
+metadata failure dengan cleanup file, retry, busy state, Escape/close guard,
+cancel edit yang mempertahankan record lama, dan refresh Media Library.
+Editor tidak memakai nested form. Responsive diperiksa pada
+360/390/430/768/820/1024/1280/1366/1440/1536/1920/2560/3840px; centered dialog
+tanpa horizontal overflow. Axe pass pada mobile Dark, desktop Light, dan
+Media Library. Screenshot panel diperiksa secara visual:
+`test-results/cms-upload-mobile-dark.png` dan
+`test-results/cms-upload-desktop-light.png` (ignored).
+
+Read-only query pada Supabase production mengonfirmasi bucket `public-media`
+public, limit 5242880 bytes, allowlist PNG/JPEG/WebP, dan admin-only upload
+dengan user-folder serta generated-path checks. Tidak ada perubahan schema,
+grants, RLS, Auth atau dependency. Shared upload method mengembalikan metadata
+tervalidasi agar UI tidak perlu menghitung ukuran ulang atau menyalin URL.
+Normal Mode dan lazy Three.js tetap lolos tes regresi; initial JS sekitar
+170.2 KB gzip dalam batas 190 KB. Build dengan environment asli dipulihkan
+sesudah browser tests.

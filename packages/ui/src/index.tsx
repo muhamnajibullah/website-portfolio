@@ -21,6 +21,7 @@ export function Icon({
     | 'code'
     | 'flight'
     | 'plus'
+    | 'upload'
     | 'check'
     | 'external'
     | 'sun'
@@ -34,6 +35,7 @@ export function Icon({
     code: 'm8 6-6 6 6 6m8-12 6 6-6 6m-5 2 2-16',
     flight: 'M3 6h18M12 6v4M7 19h12M9 15v4m7-4v4M3 12h4l2-2h6l4 3v3H8l-3-4',
     plus: 'M12 5v14M5 12h14',
+    upload: 'M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4',
     check: 'm5 12 4 4L19 6',
     external: 'M14 3h7v7M21 3 10 14M10 3H3v18h18v-7',
     sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5',
