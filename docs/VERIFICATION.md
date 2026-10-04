@@ -41,6 +41,31 @@ Lighthouse **13.5.0**, default mobile audit terhadap production preview dengan p
 
 Placeholder page sengaja memakai `noindex`; SEO indexing target baru relevan setelah profil asli published dan origin production dikonfigurasi. Metadata, canonical, sitemap dan escaping SSR sudah diuji. Lighthouse 13.5 juga melaporkan rekomendasi `llms.txt`. Audit production dengan konten/aset asli tetap diperlukan.
 
-Software WebGL pada headless Chromium digunakan untuk tes kontrol; touch tests memilih Low quality agar rendering emulator stabil. Pengujian touch perangkat fisik, cloud Auth/Storage, Vercel headers/WAF/rate limits, dan deployment belum dijalankan karena project cloud/aset asli belum tersedia. Docker engine tidak berjalan; database policy test tetap berjalan melalui PGlite.
+Software WebGL pada headless Chromium digunakan untuk tes kontrol; touch tests memilih Low quality agar rendering emulator stabil. Pengujian touch perangkat fisik dan WAF/custom rate-limit behavior belum dilakukan. Docker engine tidak berjalan; database policy test lokal tetap berjalan melalui PGlite. Pemeriksaan cloud dilaporkan terpisah di bawah.
 
 Artefak lokal (diabaikan Git): `playwright-report/`, `test-results/preview-desktop.png`, `test-results/preview-mobile.png`, `test-results/preview-cms.png`, `test-results/lighthouse-mobile.json`.
+
+## Production verification — 2026-10-04
+
+Portfolio: <https://website-portfolio-one-sandy.vercel.app>. CMS: <https://website-portfolio-cms.vercel.app>. Kedua project memakai Node.js 22.x/pnpm 10.32.1, root aplikasi yang tepat, shared workspace, Supabase production dan GitHub production branch `master`.
+
+| Check | Hasil |
+| --- | --- |
+| Deployment web + CMS | READY; production aliases memberi HTTP 200 tanpa login Vercel |
+| Supabase migration | `202610030001_portfolio.sql` applied dengan migration history CLI |
+| Cloud RLS | `supabase/tests/deployment-check.sql` pass: anon published-only/read-only, non-admin mutation/draft/self-promotion ditolak, exposed RLS dan bucket restrictions benar |
+| Auth configuration | Signup disabled; Site URL CMS dan exact redirect allowlist; sign-in/token verification limits 10 |
+| Browser CMS → Supabase | Password login, admin RPC/dashboard, draft save/delete, draft hidden from public, sign-out pass |
+| Browser CMS → Storage | PNG upload, draft metadata, public image HTTP 200, metadata dan storage object cleanup pass |
+| Public rendering | HTTP 200, one logical H1, placeholder content, robots/sitemap memakai production origin |
+| Responsive production | 360/390/430/768/820/1024/1366/1440/1920/2560/3840px tanpa horizontal overflow |
+| Accessibility production | Axe: Normal Mode dan CMS login tanpa violations |
+| Interactive production | Tidak ada Three.js chunk sebelum Enter world; canvas, Low quality, reset, exit dan focus return pass |
+| Browser/bundle safety | Tidak ditemukan page errors/failed requests; generated password, full secret key dan service-role JWT tidak ditemukan pada bundle yang dimuat |
+| Vercel headers | CSP, nosniff, frame protection dan referrer policy diterapkan; CMS noindex/nofollow dan no-store |
+| Vercel error log scan | Tidak ada error log pada kedua project untuk interval satu jam saat pemeriksaan |
+| Web production initial bundle | 172.8 KB gzip dengan Supabase aktif; di bawah budget 190 KB; Three.js tetap lazy |
+
+Fixture SQL cloud tidak di-commit ke database. Draft dan PNG untuk browser smoke check dibuat sementara lalu dihapus; tidak ada profil/project/foto fiktif sebagai final content. Konten asli belum tersedia, sehingga project detail route dan proximity card menggunakan konten nyata tetap menunggu pengisian CMS; alur tersebut sudah diuji dengan fixture pada browser tests lokal/CI.
+
+Artefak production lokal (diabaikan Git): `test-results/production-verification.json`, `test-results/production-web.png`, `test-results/production-mobile.png`, `test-results/production-cms.png`.

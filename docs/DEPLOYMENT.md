@@ -7,12 +7,22 @@ Panduan ini untuk repository portfolio ini. Jika akun/project sudah dibuat, lang
 - Repository: [muhamnajibullah/website-portfolio](https://github.com/muhamnajibullah/website-portfolio).
 - Supabase: [dashboard project](https://supabase.com/dashboard/project/ycjgsihugubpauxthspw); URL API `https://ycjgsihugubpauxthspw.supabase.co`.
 - Vercel portfolio: [dashboard website-portfolio](https://vercel.com/muhammadnajibullah/website-portfolio).
+- Portfolio production: [website-portfolio-one-sandy.vercel.app](https://website-portfolio-one-sandy.vercel.app).
+- CMS production: [website-portfolio-cms.vercel.app](https://website-portfolio-cms.vercel.app); [dashboard Vercel CMS](https://vercel.com/muhammadnajibullah/website-portfolio-cms).
 - URL dan publishable key sudah diisi pada kedua `.env.local` lokal. File env tidak ikut Git.
-- Pemeriksaan awal: endpoint Auth dapat diakses, tetapi tabel `profiles` dan `projects` belum ditemukan (`PGRST205`). Jalankan migration pada langkah 1 sebelum build portfolio dengan env Supabase aktif.
-- Public signup masih aktif pada pemeriksaan awal. Nonaktifkan melalui langkah 2.
-- Link Vercel di atas adalah dashboard akun, bukan domain website. Ambil domain production portfolio dari tab Domains/Deployments untuk `VITE_SITE_URL`; project CMS menggunakan root `apps/cms` secara terpisah.
+- Migration `202610030001_portfolio.sql` sudah diterapkan menggunakan `supabase db push`, termasuk migration history, RLS dan bucket `public-media`. Error awal `PGRST205` sudah terselesaikan; jangan menjalankan ulang migration awal di SQL Editor.
+- Public signup sudah dinonaktifkan. Auth Site URL memakai CMS production; redirect allowlist hanya CMS production, `http://localhost:5174` dan `http://127.0.0.1:5174`. Batas sign-in dan token verification masing-masing 10 mengikuti konfigurasi keamanan repository.
+- Kedua project Vercel terhubung ke repository GitHub pada production branch `master`, memakai Node.js 22.x dan pnpm 10.32.1. Root masing-masing `apps/web` dan `apps/cms`, dengan shared source di luar root disertakan.
+- Environment Production sudah diisi pada kedua project. `VITE_SITE_URL` memakai `https://website-portfolio-one-sandy.vercel.app`, termasuk pada CMS. Preview tidak diberi koneksi Supabase production; Vercel Authentication tetap melindungi Preview.
+- Build cache Turborepo memasukkan `.env*` aplikasi sebagai input agar perubahan env lokal tidak memakai ulang bundle setup/placeholder yang lama. File env tetap diabaikan Git.
 
-Urutan lanjut paling singkat: migration → akun admin → isi konten CMS → konfigurasi Vercel dan env Production → deploy. Jika menggunakan plugin Supabase/Vercel, autentikasi akun memungkinkan langkah cloud dikerjakan langsung; publishable key sendiri tidak memiliki izin menjalankan SQL migration atau mengubah setting deployment.
+### Mulai menggunakan CMS
+
+Provisioning dan deployment pertama selesai pada **2026-10-04**. Buka CMS production; email admin dan password awal yang dibuat otomatis tersimpan hanya dalam **`.env.cms-admin.local` pada root workspace lokal**. File ini diabaikan Git dan tidak dikirim ke Vercel; jangan memasukkannya ke environment `VITE_` atau dokumentasi publik.
+
+Login/logout, draft create/delete, public draft hiding dan upload PNG sudah diuji terhadap layanan production. Semua data dan file verifikasi sementara sudah dihapus. Profil, foto, project, tools dan interactive points belum diisi; tampilan placeholder tetap digunakan sampai konten asli dipublikasikan. Mulai dari langkah 4 untuk mengisi konten. Aktifkan authenticator/MFA dari dashboard CMS setelah login.
+
+Langkah provisioning di bawah tetap menjadi referensi untuk environment baru. Publishable key sendiri tidak memiliki izin menjalankan migration atau mengubah setting deployment.
 
 ## 1. Siapkan database Supabase
 
@@ -24,6 +34,14 @@ Urutan lanjut paling singkat: migration → akun admin → isi konten CMS → ko
 Publishable key memang digunakan browser. Akses data tetap dibatasi RLS. Jangan memakai `sb_secret_...`, `service_role`, database password, atau personal access token dalam env `VITE_`. [Dokumentasi API keys](https://supabase.com/docs/guides/getting-started/api-keys).
 
 Pilihan CLI untuk migration: `supabase link --project-ref <project-ref>`, kemudian `supabase db push`. Jika Anda memilih SQL Editor, migration history CLI tidak otomatis tercatat; jangan menjalankan kedua cara untuk migration pertama tanpa menyelaraskan history. Docker hanya diperlukan jika ingin menjalankan stack Supabase lokal.
+
+Untuk memeriksa RLS pada project yang sudah linked, gunakan CLI Supabase 2.119.0:
+
+```powershell
+npm exec --yes --package=supabase@2.119.0 -- supabase db query --linked --file supabase/tests/deployment-check.sql --output json
+```
+
+Pemeriksaan ini menguji publication filtering, penolakan mutation anon/non-admin, penolakan self-promotion, RLS dan batas bucket. Fixture hanya berada dalam transaksi yang di-rollback; tidak ada konten contoh yang dipublikasikan.
 
 ## 2. Buat akses admin CMS
 
@@ -137,6 +155,16 @@ Tambahkan env di **Settings → Environment Variables** pada **kedua project**, 
 Untuk Preview, gunakan Supabase project terpisah jika ingin menguji mutation CMS. Boleh biarkan env Supabase Preview kosong; preview akan memakai placeholder dan CMS menampilkan setup. Jangan mengaktifkan akses admin production untuk preview yang tidak dipercaya.
 
 Set Production Branch sesuai branch GitHub yang benar; branch lokal awal repository ini adalah `master`, tetapi branch remote Anda dapat berbeda. Jalankan deployment pada kedua project. Jika URL public belum diketahui, gunakan domain production bawaan yang ditampilkan project Vercel, kemudian isi ulang `VITE_SITE_URL` dan redeploy. Perubahan env hanya berlaku pada deployment baru. [Environment variables Vercel](https://vercel.com/docs/environment-variables).
+
+Untuk deployment manual dari workspace ini, login CLI terlebih dahulu. Jalankan dari root repository; nama project eksplisit menjaga target monorepo tetap tepat:
+
+```powershell
+npm exec --yes --package=vercel@62.2.0 -- vercel link --repo --yes --scope muhammadnajibullah
+npm exec --yes --package=vercel@62.2.0 -- vercel deploy --prod --yes --project website-portfolio --scope muhammadnajibullah
+npm exec --yes --package=vercel@62.2.0 -- vercel deploy --prod --yes --project website-portfolio-cms --scope muhammadnajibullah
+```
+
+`git push origin master` juga dapat memicu deployment melalui Git integration. Vercel dapat melewati build bila perubahan hanya dokumentasi dan tidak memengaruhi aplikasi. Setelah perubahan konten CMS, gunakan deployment manual/redeploy karena perubahan database tidak menghasilkan Git commit.
 
 ## 7. Konfigurasikan URL Auth dan domain
 
