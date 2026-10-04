@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { fixture } from './fixtures';
+import { expectCenteredDialog } from './dialog';
 
 for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840]) {
   test(`normal mode has no overflow at ${width}px with placeholder and published content`, async ({
@@ -9,7 +10,7 @@ for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840
     await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveCount(1);
-    await expect(page.getByText('Profile content placeholder')).toBeVisible();
+    await expect(page.getByText('Profile not added yet')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -38,6 +39,10 @@ for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840
     );
     if ([360, 768, 1440].includes(width))
       await page.screenshot({ path: `test-results/portfolio-light-${width}.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
+    await expectCenteredDialog(page.getByRole('dialog'));
+    await page.keyboard.press('Escape');
+    expect(await page.locator('canvas').count()).toBe(0);
   });
 }
 test('Three.js loads after Enter World; controls, proximity, details and exit work', async ({
@@ -53,14 +58,13 @@ test('Three.js loads after Enter World; controls, proximity, details and exit wo
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Synthetic browser test project' })).toBeVisible();
   expect(scripts.some((url) => /InteractiveWorld|three/i.test(url))).toBe(false);
-  await page.getByRole('button', { name: 'Explore interactive world', exact: true }).click();
-  await expect(
-    page.getByRole('dialog', { name: 'Explore my interactive portfolio' }),
-  ).toBeVisible();
+  await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Explore the portfolio in 3D' })).toBeVisible();
   expect(scripts.some((url) => /InteractiveWorld|three/i.test(url))).toBe(false);
   await page.getByRole('button', { name: 'Enter world' }).click();
   await expect(page.locator('canvas')).toBeVisible();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expectCenteredDialog(page.getByRole('dialog', { name: 'Flight settings' }));
   await page.getByLabel('Graphics quality').selectOption('low');
   await page.getByRole('button', { name: 'Continue exploring' }).click();
   const openDetails = page.getByRole('button', { name: 'Open details' });
@@ -81,6 +85,7 @@ test('Three.js loads after Enter World; controls, proximity, details and exit wo
   await expect(pointCard.getByText(fixture.projects[0]!.summary, { exact: true })).toBeVisible();
   await expect(pointCard.getByText('Browser test tool', { exact: true })).toBeVisible();
   const details = page.getByRole('dialog', { name: 'Synthetic browser test project' });
+  await expectCenteredDialog(details);
   for (const value of [...fixture.projects[0]!.challenges, ...fixture.projects[0]!.solutions])
     await expect(details.getByText(value, { exact: true })).toBeVisible();
   await expect(details.getByText('Browser test tool', { exact: true })).toBeVisible();
@@ -95,11 +100,9 @@ test('Three.js loads after Enter World; controls, proximity, details and exit wo
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Graphics quality').selectOption('low');
   await page.getByRole('button', { name: 'Continue exploring' }).click();
-  await page.getByRole('button', { name: 'Normal Mode', exact: true }).click();
+  await page.getByRole('button', { name: 'Back to portfolio', exact: true }).click();
   await expect(page.locator('canvas')).toHaveCount(0);
-  await expect(
-    page.getByRole('button', { name: 'Explore interactive world', exact: true }),
-  ).toBeFocused();
+  await expect(page.getByRole('button', { name: 'Explore in 3D', exact: true })).toBeFocused();
   expect(errors).toEqual([]);
 });
 for (const viewport of [
@@ -122,7 +125,7 @@ for (const viewport of [
       await expect(
         page.getByRole('heading', { name: 'Synthetic browser test project' }),
       ).toBeVisible();
-      await page.getByRole('button', { name: 'Explore interactive world', exact: true }).click();
+      await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
       await page.getByRole('button', { name: 'Enter world' }).click();
       await expect(page.locator('canvas')).toBeVisible();
       await page.getByRole('button', { name: 'Settings', exact: true }).tap();
@@ -177,11 +180,9 @@ for (const viewport of [
         .toBeGreaterThan(3.1);
       await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
       await page.getByRole('button', { name: 'Reset flight' }).tap();
-      await page.getByRole('button', { name: 'Normal Mode', exact: true }).tap();
+      await page.getByRole('button', { name: 'Back to portfolio', exact: true }).tap();
       await expect(page.locator('canvas')).toHaveCount(0);
-      await expect(
-        page.getByRole('button', { name: 'Explore interactive world', exact: true }),
-      ).toBeFocused();
+      await expect(page.getByRole('button', { name: 'Explore in 3D', exact: true })).toBeFocused();
       const scrollBefore = await page.evaluate(() => scrollY);
       await touch.send('Input.dispatchTouchEvent', {
         type: 'touchStart',
@@ -204,10 +205,10 @@ test('WebGL failure gracefully returns to the normal portfolio', async ({ page }
     HTMLCanvasElement.prototype.getContext = () => null;
   });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Explore interactive world', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
   await page.getByRole('button', { name: 'Enter world' }).click();
-  await expect(page.getByText('Interactive experience couldn’t be loaded.')).toBeVisible();
-  await page.getByRole('button', { name: 'View Normal Portfolio' }).click();
+  await expect(page.getByText('The 3D tour could not load.')).toBeVisible();
+  await page.getByRole('button', { name: 'Back to portfolio' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
 test('normal mode, intro and CMS setup meet basic WCAG checks', async ({ page }) => {
@@ -216,7 +217,7 @@ test('normal mode, intro and CMS setup meet basic WCAG checks', async ({ page })
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
       .violations,
   ).toEqual([]);
-  await page.getByRole('button', { name: 'Explore interactive world', exact: true }).click();
+  await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
   expect(
     (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze())
       .violations,

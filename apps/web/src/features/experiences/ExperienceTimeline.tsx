@@ -3,8 +3,8 @@ import { EmptyState, Image } from '@portfolio/ui';
 export function ExperienceTimeline({ content }: { content: Content }) {
   if (!content.work_experiences.length)
     return (
-      <EmptyState title="Your journey, honestly told">
-        Publish your work experience, contributions and impact from the CMS.
+      <EmptyState title="No work experience published yet">
+        Roles, responsibilities, and related projects will appear here.
       </EmptyState>
     );
   return (
@@ -16,7 +16,7 @@ export function ExperienceTimeline({ content }: { content: Content }) {
         return (
           <article className="experience" key={experience.id}>
             <div className="experience-period">
-              {experience.start_date || 'Date to be added'}
+              {experience.start_date || 'Date not added yet'}
               <span>— {experience.end_date || 'Present'}</span>
             </div>
             <div>

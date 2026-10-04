@@ -97,20 +97,20 @@ export function PublicApp({
       </header>
       {error && (
         <div className="container notice error" role="alert">
-          Live content could not be refreshed. Showing the last published snapshot.{' '}
+          Could not load the latest content. Showing the last available version.{' '}
           <button className="button" onClick={retry}>
             Try again
           </button>
         </div>
       )}
       <span className="sr-only" role="status">
-        {refreshing ? 'Refreshing published content' : ''}
+        {refreshing ? 'Updating portfolio content' : ''}
       </span>
       {missing ? (
         <main id="main" className="container recovery">
           <span className="eyebrow">404 / Not found</span>
-          <h1>This page isn’t here.</h1>
-          <p>The project may have been unpublished, or the link may have changed.</p>
+          <h1>Page not found</h1>
+          <p>This page may have moved, or the project is no longer published.</p>
           <a className="button primary" href="/">
             Return to portfolio <Icon />
           </a>
@@ -127,22 +127,22 @@ export function PublicApp({
           </span>
           {name}.
         </a>
-        <p>Software Engineer · Built with intention.</p>
+        <p>Software Engineer · Portfolio</p>
         <a href="#main">Back to top ↑</a>
       </footer>
       {mode === 'intro' && (
-        <Dialog title="Explore my interactive portfolio" onClose={exit}>
+        <Dialog title="Explore the portfolio in 3D" onClose={exit}>
           <div className="intro-icon">
             <Icon name="flight" size={38} />
           </div>
           <p>
-            A quieter way to explore. Pilot a helicopter around a small world and discover projects
-            and experience at your own pace.
+            Fly toward a marker to find a project or work experience. Move closer, then press E or
+            choose Open details.
           </p>
           <div className="control-guide">
             <div>
               <kbd>W A S D</kbd>
-              <span>Move & turn</span>
+              <span>Move and turn</span>
             </div>
             <div>
               <kbd>Drag</kbd>
@@ -150,23 +150,23 @@ export function PublicApp({
             </div>
             <div>
               <kbd>↑ / ↓</kbd>
-              <span>Adjust altitude</span>
+              <span>Fly up or down</span>
             </div>
             <div>
               <kbd>E</kbd>
-              <span>Open nearby details</span>
+              <span>View a nearby destination</span>
             </div>
           </div>
           <p className="small-text">
-            Touch controls are available on mobile and tablet. The helicopter and environment use
-            development placeholders. All published content is also available in Normal Mode.
+            On mobile and tablet, use the on-screen controls. The 3D models are temporary. You can
+            also view every project in the regular portfolio.
           </p>
           <div className="actions">
             <button className="button primary" onClick={() => setMode('world')}>
               Enter world <Icon name="flight" />
             </button>
             <button className="button" onClick={exit}>
-              Stay in Normal Mode
+              Stay on the portfolio
             </button>
           </div>
         </Dialog>
@@ -182,11 +182,11 @@ export function PublicApp({
             <Suspense
               fallback={
                 <div className="world-loading">
-                  <span className="eyebrow">Preparing your flight</span>
-                  <h2>Loading interactive world…</h2>
-                  <progress aria-label="Loading interactive module" />
+                  <span className="eyebrow">Starting the 3D tour</span>
+                  <h2>Loading the 3D world…</h2>
+                  <progress aria-label="Loading the 3D tour" />
                   <button className="button" onClick={exit}>
-                    View Normal Portfolio
+                    Back to portfolio
                   </button>
                 </div>
               }
@@ -202,10 +202,10 @@ export function PublicApp({
 export function WorldFallback({ exit }: { exit: () => void }) {
   return (
     <div className="world-loading" role="alert">
-      <h2>Interactive experience couldn’t be loaded.</h2>
-      <p>View the normal portfolio instead.</p>
+      <h2>The 3D tour could not load.</h2>
+      <p>You can still view all projects in the regular portfolio.</p>
       <button className="button primary" onClick={exit}>
-        View Normal Portfolio
+        Back to portfolio
       </button>
     </div>
   );

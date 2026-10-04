@@ -3,8 +3,8 @@ import { EmptyState, Icon } from '@portfolio/ui';
 export function Technologies({ content }: { content: Content }) {
   if (!content.technologies.length)
     return (
-      <EmptyState title="A toolkit grounded in real experience">
-        Add your technologies and categories in the CMS. No arbitrary skill percentages.
+      <EmptyState title="No tools added yet">
+        Tools and technologies will appear here once added.
       </EmptyState>
     );
   return (

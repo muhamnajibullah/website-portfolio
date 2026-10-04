@@ -130,11 +130,13 @@ export function Dialog({
   children,
   onClose,
   className = '',
+  dismissible = true,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   className?: string;
+  dismissible?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -156,12 +158,17 @@ export function Dialog({
       className={`dialog ${className}`}
       onCancel={(event) => {
         event.preventDefault();
-        onClose();
+        if (dismissible) onClose();
       }}
     >
       <div className="dialog-top">
         <h2 id={titleId}>{title}</h2>
-        <button className="icon-button" onClick={onClose} aria-label="Close dialog">
+        <button
+          className="icon-button"
+          onClick={onClose}
+          aria-label="Close dialog"
+          disabled={!dismissible}
+        >
           <Icon name="close" />
         </button>
       </div>

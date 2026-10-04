@@ -32,7 +32,7 @@ export function ProjectPage({ project, content }: { project: Project; content: C
             target="_blank"
             rel="noopener noreferrer"
           >
-            Visit live project <Icon name="external" />
+            Open live project <Icon name="external" />
           </a>
         )}
         {project.repository_url && (
@@ -42,7 +42,7 @@ export function ProjectPage({ project, content }: { project: Project; content: C
             target="_blank"
             rel="noopener noreferrer"
           >
-            View repository <Icon name="code" />
+            View source code <Icon name="code" />
           </a>
         )}
       </div>
@@ -60,7 +60,7 @@ export function ProjectPage({ project, content }: { project: Project; content: C
       <section className="detail-section">
         <h2>Overview</h2>
         <p className="text-block">
-          {project.description || 'Detailed project information will be added soon.'}
+          {project.description || 'A full project description has not been added yet.'}
         </p>
       </section>
       {project.role && (

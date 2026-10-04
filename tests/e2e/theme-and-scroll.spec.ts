@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { fixture } from './fixtures';
+import { expectCenteredDialog } from './dialog';
 
 test('saved theme colors the prerendered page before React loads', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('portfolio-theme', 'light'));
@@ -19,7 +20,7 @@ for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
     const trigger = page.getByRole('button', {
-      name: 'Explore the interactive world',
+      name: 'Start the 3D tour',
       exact: true,
     });
     await trigger.scrollIntoViewIfNeeded();
@@ -40,7 +41,7 @@ for (const width of [390, 1440]) {
     for (const exit of ['cancel', 'button', 'escape']) {
       await trigger.click();
       if (exit === 'cancel')
-        await page.getByRole('button', { name: 'Stay in Normal Mode' }).click();
+        await page.getByRole('button', { name: 'Stay on the portfolio' }).click();
       else {
         await page.getByRole('button', { name: 'Enter world' }).click();
         await expect(page.locator('canvas')).toBeVisible();
@@ -49,7 +50,7 @@ for (const width of [390, 1440]) {
         // A nested dialog releases only its own lock; the world still owns one.
         expect(await page.evaluate(() => document.body.style.overflow)).toBe('hidden');
         if (exit === 'button')
-          await page.getByRole('button', { name: 'Normal Mode', exact: true }).click();
+          await page.getByRole('button', { name: 'Back to portfolio', exact: true }).click();
         else await page.keyboard.press('Escape');
       }
       await expect(trigger).toBeFocused();
@@ -86,7 +87,8 @@ for (const theme of ['dark', 'light'] as const) {
     ).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.screenshot({ path: `test-results/portfolio-${theme}.png`, fullPage: true });
-    await page.getByRole('button', { name: 'Explore interactive world', exact: true }).click();
+    await page.getByRole('button', { name: 'Explore in 3D', exact: true }).click();
+    await expectCenteredDialog(page.getByRole('dialog'));
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.getByRole('button', { name: 'Enter world' }).click();
     await expect(page.locator('canvas')).toBeVisible();
@@ -103,7 +105,7 @@ for (const theme of ['dark', 'light'] as const) {
       theme === 'dark' ? 'light' : 'dark',
     );
     await page.keyboard.press('Escape');
-    await page.getByRole('button', { name: 'Normal Mode', exact: true }).click();
+    await page.getByRole('button', { name: 'Back to portfolio', exact: true }).click();
     await expect(
       page.getByRole('button', {
         name: theme === 'dark' ? 'Switch to dark mode' : 'Switch to light mode',
@@ -143,7 +145,7 @@ test('blocked storage and reduced motion preserve usable theme switching and scr
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: 'Switch to light mode' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-  const trigger = page.getByRole('button', { name: 'Explore interactive world', exact: true });
+  const trigger = page.getByRole('button', { name: 'Explore in 3D', exact: true });
   await trigger.hover();
   expect(await trigger.evaluate((element) => getComputedStyle(element).transform)).toBe('none');
   await trigger.click();

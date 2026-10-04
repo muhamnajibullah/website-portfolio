@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Content, ContentRecord, TableName } from '@portfolio/types';
 import { emptyContent } from '@portfolio/validation';
-import { EmptyState, Icon, ThemeToggle } from '@portfolio/ui';
+import { Dialog, EmptyState, Icon, ThemeToggle } from '@portfolio/ui';
 import { repository } from '../../services/client';
 import { RecordEditor, defaultRecord, recordLabel } from '../content/RecordEditor';
 import { MediaUpload } from '../media/MediaUpload';
@@ -12,21 +12,24 @@ const sections: { table: TableName; label: string }[] = [
   { table: 'profiles', label: 'Profile' },
   { table: 'projects', label: 'Projects' },
   { table: 'work_experiences', label: 'Work experiences' },
-  { table: 'technology_categories', label: 'Technology categories' },
-  { table: 'technologies', label: 'Technologies' },
-  { table: 'interactive_points', label: 'Interactive points' },
+  { table: 'technology_categories', label: 'Tool categories' },
+  { table: 'technologies', label: 'Tools and technologies' },
+  { table: 'interactive_points', label: '3D destinations' },
   { table: 'media_metadata', label: 'Media Library' },
-  { table: 'project_media', label: 'Project gallery links' },
-  { table: 'project_technologies', label: 'Project technologies' },
-  { table: 'experience_technologies', label: 'Experience technologies' },
+  { table: 'project_media', label: 'Project galleries' },
+  { table: 'project_technologies', label: 'Project tools' },
+  { table: 'experience_technologies', label: 'Experience tools' },
   { table: 'social_links', label: 'Social links' },
-  { table: 'site_settings', label: 'SEO & site settings' },
+  { table: 'site_settings', label: 'Website settings' },
 ];
 export function Dashboard() {
   const [active, setActive] = useState<TableName | 'dashboard'>('dashboard');
   const [record, setRecord] = useState<Record<string, unknown> | null>(null),
     [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
+  const [deletion, setDeletion] = useState<{ table: TableName; item: ContentRecord } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ['admin-content'],
@@ -50,22 +53,22 @@ export function Dashboard() {
       await repository!.save(table, { ...item, status });
       await refresh();
     } catch {
-      setError('Action failed. Check the record and your administrator permissions.');
+      setError('Could not update this item. Check your access and linked items, then try again.');
     }
   };
   const remove = async (table: TableName, item: ContentRecord) => {
-    if (
-      !window.confirm(
-        `Delete “${recordLabel(item)}”? This removes the record permanently. Uploaded files remain in storage.`,
-      )
-    )
-      return;
-    setError('');
+    setDeleteError('');
+    setDeleting(true);
     try {
       await repository!.remove(table, item.id);
+      setDeletion(null);
       await refresh();
     } catch {
-      setError('Delete failed. This record may be referenced by another record.');
+      setDeleteError(
+        'Could not delete this item. Check your access and any links to it, then try again.',
+      );
+    } finally {
+      setDeleting(false);
     }
   };
   const records =
@@ -137,18 +140,18 @@ export function Dashboard() {
             <span className="eyebrow">Software Engineer portfolio</span>
             <h1>
               {active === 'dashboard'
-                ? 'Make your story your own.'
+                ? 'Manage your portfolio.'
                 : sections.find((section) => section.table === active)?.label}
             </h1>
             <p>
               {active === 'dashboard'
-                ? 'An overview of your portfolio. Start with your profile, then add the work that matters.'
-                : 'Create, edit and publish content. Drafts stay visible only to authorized administrators.'}
+                ? 'Add your profile, projects, work experience, and images from this dashboard.'
+                : 'Add or edit items here. Choose Publish when they are ready to appear on your portfolio.'}
             </p>
           </div>
           {active !== 'dashboard' && active !== 'media_metadata' && (
             <button className="button primary" onClick={() => setRecord(defaultRecord(active))}>
-              New record <Icon name="plus" />
+              Add item <Icon name="plus" />
             </button>
           )}
         </div>
@@ -180,22 +183,21 @@ export function Dashboard() {
               )}
             </div>
             <div className="notice">
-              Publishing changes updates the live app through its content query. Redeploy the public
-              web app after publication to refresh prerendered HTML, project routes, metadata and
-              sitemap.
+              Published changes appear on the portfolio after it refreshes. Redeploy the portfolio
+              after adding a new project so its page and search-engine information are updated too.
             </div>
             <div className="dashboard-next">
-              <h2>Build a portfolio that feels like you.</h2>
+              <h2>Set up your portfolio</h2>
               <p>
-                1. Add your real profile and photo.
+                1. Add your profile and photo.
                 <br />
-                2. Create technology categories and tools.
+                2. Add your tools and their categories.
                 <br />
                 3. Publish your projects and experiences.
                 <br />
-                4. Link technologies, gallery media and interactive points.
+                4. Link tools and gallery images to each project. Add 3D destinations if needed.
                 <br />
-                5. Update your contact and SEO settings.
+                5. Add contact links and website settings.
               </p>
               <button className="button primary" onClick={() => setActive('profiles')}>
                 Start with your profile <Icon />
@@ -206,17 +208,19 @@ export function Dashboard() {
           <>
             {active === 'media_metadata' && <MediaUpload onUploaded={refresh} />}
             <div className="record-toolbar">
-              <label htmlFor="publication-filter">Publication state</label>
+              <label htmlFor="publication-filter">Status</label>
               <select
                 id="publication-filter"
                 value={filter}
                 onChange={(event) => setFilter(event.target.value)}
               >
                 {['all', 'draft', 'published', 'archived'].map((value) => (
-                  <option key={value}>{value}</option>
+                  <option key={value} value={value}>
+                    {value === 'all' ? 'All items' : value[0]!.toUpperCase() + value.slice(1)}
+                  </option>
                 ))}
               </select>
-              <span>{records.length} records</span>
+              <span>{records.length} items</span>
             </div>
             {records.length ? (
               <div className="record-list">
@@ -228,7 +232,8 @@ export function Dashboard() {
                       </span>
                       <h2>{recordLabel(item)}</h2>
                       <p className="small-text">
-                        Order: {item.sort_order} · <span className="record-id">{item.id}</span>
+                        Display order: {item.sort_order} ·{' '}
+                        <span className="record-id">{item.id}</span>
                       </p>
                       {active === 'media_metadata' && 'url' in item && (
                         <a
@@ -237,13 +242,13 @@ export function Dashboard() {
                           target="_blank"
                           rel="noopener noreferrer"
                         >
-                          Open public image
+                          Open image
                         </a>
                       )}
                     </div>
                     <div className="actions">
                       <button className="button" onClick={() => setRecord({ ...item })}>
-                        Edit / preview
+                        Edit item
                       </button>
                       <button
                         className="button"
@@ -265,7 +270,13 @@ export function Dashboard() {
                           Archive
                         </button>
                       )}
-                      <button className="button danger" onClick={() => void remove(active, item)}>
+                      <button
+                        className="button danger"
+                        onClick={() => {
+                          setDeleteError('');
+                          setDeletion({ table: active, item });
+                        }}
+                      >
                         Delete
                       </button>
                     </div>
@@ -273,8 +284,8 @@ export function Dashboard() {
                 ))}
               </div>
             ) : (
-              <EmptyState title="A blank page, full of possibility">
-                No records match this view. Add your authentic content to get started.
+              <EmptyState title="No items to show">
+                This section is empty, or no items match the selected status.
               </EmptyState>
             )}
           </>
@@ -296,6 +307,31 @@ export function Dashboard() {
           onSave={(input) => save.mutateAsync(input)}
           onClose={() => setRecord(null)}
         />
+      )}
+      {deletion && (
+        <Dialog title="Delete this item?" dismissible={!deleting} onClose={() => setDeletion(null)}>
+          <p>
+            Delete <strong>{recordLabel(deletion.item)}</strong>? This cannot be undone. Uploaded
+            image files are kept.
+          </p>
+          {deleteError && (
+            <p className="notice error" role="alert">
+              {deleteError}
+            </p>
+          )}
+          <div className="actions">
+            <button className="button" disabled={deleting} onClick={() => setDeletion(null)}>
+              Cancel
+            </button>
+            <button
+              className="button danger"
+              disabled={deleting}
+              onClick={() => void remove(deletion.table, deletion.item)}
+            >
+              {deleting ? 'Deleting…' : 'Delete item'}
+            </button>
+          </div>
+        </Dialog>
       )}
     </div>
   );

@@ -1,12 +1,14 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { fixture } from './fixtures';
+import { expectCenteredDialog } from './dialog';
 import type { Content } from '../../packages/types/src';
-test('CMS signs in, validates, creates a draft and previews safely using mocked transport', async ({
+test('CMS validates drafts, previews safely and confirms deletion in centered dialogs', async ({
   page,
 }) => {
   const content: Content = structuredClone(fixture);
   const payloads: unknown[] = [];
+  const deletions: string[] = [];
   const user = {
     id: '00000000-0000-4000-8000-000000000010',
     aud: 'authenticated',
@@ -42,13 +44,19 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
       if (table === 'projects') content.projects.push(payload);
       return route.fulfill({ status: 201, json: null });
     }
+    if (table === 'projects' && request.method() === 'DELETE') {
+      const id = url.searchParams.get('id')?.replace(/^eq\./, '') ?? '';
+      deletions.push(id);
+      content.projects = content.projects.filter((project) => project.id !== id);
+      return route.fulfill({ status: 204 });
+    }
     return route.fulfill({ status: 204 });
   });
   await page.goto('http://127.0.0.1:5175');
   await page.getByLabel('Email address').fill('admin@example.test');
   await page.getByLabel('Password', { exact: true }).fill('test-only-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Make your story your own.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Manage your portfolio.' })).toBeVisible();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: 'test-results/cms-dashboard-dark.png' });
   await page.getByRole('button', { name: 'Switch to light mode' }).click();
@@ -60,10 +68,20 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
     .getByRole('navigation', { name: 'CMS sections' })
     .getByRole('button', { name: /^Projects/ })
     .click();
-  await page.getByRole('button', { name: 'New record' }).click();
+  await page.getByRole('button', { name: 'Add item' }).click();
+  for (const width of [360, 390, 820, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expectCenteredDialog(page.getByRole('dialog'));
+    expect(
+      await page
+        .getByRole('dialog')
+        .evaluate((element) => element.scrollHeight > element.clientHeight),
+    ).toBe(true);
+  }
+  await page.screenshot({ path: 'test-results/cms-editor-centered.png' });
   await page.getByLabel('Title', { exact: true }).fill('Synthetic CMS test draft');
-  await page.getByLabel('Slug', { exact: true }).fill('synthetic-cms-test-draft');
-  await page.getByLabel('Live url', { exact: true }).fill('javascript:alert(1)');
+  await page.getByLabel('Project URL name', { exact: true }).fill('synthetic-cms-test-draft');
+  await page.getByLabel('Live project URL', { exact: true }).fill('javascript:alert(1)');
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('alert')).toBeVisible();
   expect(payloads).toHaveLength(0);
@@ -71,13 +89,13 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Switch to dark mode' }).click();
   await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(218, 241, 222)');
-  await page.getByRole('button', { name: 'New record' }).click();
+  await page.getByRole('button', { name: 'Add item' }).click();
   // Reopen a fresh draft after the theme switch; validation still governs all writes.
   await page.getByLabel('Title', { exact: true }).fill('Synthetic CMS test draft');
-  await page.getByLabel('Slug', { exact: true }).fill('synthetic-cms-test-draft');
+  await page.getByLabel('Project URL name', { exact: true }).fill('synthetic-cms-test-draft');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page.getByLabel('Live url', { exact: true }).fill('');
-  await page.getByLabel('Description', { exact: true }).fill('<script>alert(1)</script>');
+  await page.getByLabel('Live project URL', { exact: true }).fill('');
+  await page.getByLabel('Full description', { exact: true }).fill('<script>alert(1)</script>');
   await page.getByLabel('Project problems', { exact: true }).fill('Synthetic CMS problem.');
   await page.getByLabel('Solutions provided', { exact: true }).fill('Synthetic CMS solution.');
   await page.getByRole('button', { name: 'Preview draft' }).click();
@@ -93,4 +111,28 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
     challenges: ['Synthetic CMS problem.'],
     solutions: ['Synthetic CMS solution.'],
   });
+  const draft = page
+    .locator('.record-row')
+    .filter({ has: page.getByRole('heading', { name: 'Synthetic CMS test draft' }) });
+  const deleteTrigger = draft.getByRole('button', { name: 'Delete', exact: true });
+  await deleteTrigger.click();
+  const confirmation = page.getByRole('dialog', { name: 'Delete this item?' });
+  for (const width of [360, 390, 820, 1440]) {
+    await page.setViewportSize({ width, height: 844 });
+    await expectCenteredDialog(confirmation);
+  }
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: 'test-results/cms-delete-centered.png' });
+  await confirmation.getByRole('button', { name: 'Cancel', exact: true }).click();
+  expect(deletions).toHaveLength(0);
+  await expect(draft).toBeVisible();
+  await expect(deleteTrigger).toBeFocused();
+  await deleteTrigger.click();
+  await confirmation.getByRole('button', { name: 'Delete item', exact: true }).click();
+  await expect(confirmation).toHaveCount(0);
+  await expect(draft).toHaveCount(0);
+  expect(deletions).toHaveLength(1);
+  expect(payloads[0]).toMatchObject({ id: deletions[0] });
+  expect(content.projects).toHaveLength(1);
+  expect(content.projects[0]!.id).toBe(fixture.projects[0]!.id);
 });

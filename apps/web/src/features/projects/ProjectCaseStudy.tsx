@@ -27,7 +27,7 @@ export function ProjectCaseStudy({
               ))}
             </ul>
           ) : (
-            <p className="small-text">{label} details to be added.</p>
+            <p className="small-text">{label} details are not available yet.</p>
           )}
         </section>
       ))}

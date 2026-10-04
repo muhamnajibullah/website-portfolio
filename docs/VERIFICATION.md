@@ -83,3 +83,32 @@ Border kontrol memakai semantic token khusus dengan kontras sekitar 4:1 terhadap
 Untuk mengulang fixture browser tests ketika `.env.local` terhubung ke Supabase, jalankan `pnpm build:e2e` lalu `pnpm test:e2e`. Script menimpa hanya environment child process saat build, tidak mengedit file konfigurasi lokal atau data cloud. Jalankan `pnpm build` sesudahnya untuk memulihkan build dengan konfigurasi asli. `pnpm check` tetap memeriksa build konfigurasi asli; initial JS final 169.6 KB gzip termasuk bootstrap theme, dengan budget 190 KB.
 
 Artefak visual lokal (ignored): `test-results/portfolio-{dark,light}.png`, `test-results/portfolio-light-{360,768,1440}.png`, `test-results/world-{dark,light}.png`, `test-results/cms-{dark,light}.png`, dan `test-results/cms-dashboard-{dark,light}.png`. Verifikasi touch perangkat fisik tetap belum dilakukan.
+
+## Centered popups and clearer copy — 2026-10-04
+
+Shared native `Dialog` memakai fixed positioning, inset nol, auto margins,
+batas tinggi viewport, dan internal overflow. Intro berada di tengah tanpa
+horizontal overflow pada seluruh 11 responsive widths. Project detail dan
+Flight settings diperiksa pada desktop serta touch mobile/tablet. Form CMS
+yang panjang dan konfirmasi hapus diperiksa pada 360/390/820/1440px; popup
+tetap di tengah dan form dapat scroll di dalamnya.
+
+Konfirmasi hapus CMS menggantikan `window.confirm`. Cancel tidak mengirim
+DELETE, menjaga item, dan mengembalikan fokus ke trigger. Konfirmasi menghapus
+hanya item yang dipilih; kontrol penutup dinonaktifkan selama request.
+Verifikasi create/delete memakai transport mock, tanpa mutation data cloud.
+
+Copy antarmuka public, world, auth/CMS, empty/loading/error states, label form,
+dan fallback metadata diperjelas dalam Bahasa Inggris sederhana. Payload keys,
+status values, batas validasi, authorization, RLS, dan alur upload tetap sama.
+Konten profil/project yang ditulis melalui CMS tidak ditimpa. Penjelasan upload
+mengikuti Media Library yang sudah tersedia: upload menghasilkan URL publik,
+sementara pemasangan cover dan tautan galeri dilakukan terpisah.
+
+`pnpm check` pass: ESLint, TypeScript strict, 12 unit/migration/RLS tests,
+production build, dan budget initial JS **169.2 KB gzip** dengan Three.js lazy.
+`pnpm build:e2e` dan seluruh **25 browser tests pass**. Axe tidak menemukan
+violations pada flows yang diuji, termasuk konfirmasi hapus. Pemeriksaan
+visual melalui agent-browser tidak menemukan browser errors pada intro
+desktop/mobile. Artefak ignored: `.vercel/centered-intro-{desktop,mobile}.png`,
+`test-results/cms-editor-centered.png`, `test-results/cms-delete-centered.png`.

@@ -35,7 +35,7 @@ export function ProjectCard({
         ) : (
           <div className="project-image-placeholder">
             <Icon name="code" size={44} />
-            <span>Project image to be added</span>
+            <span>Project image not added yet</span>
           </div>
         )}
       </a>
@@ -59,9 +59,9 @@ export function ProjectCard({
             </span>
           ))}
         </div>
-        {technologies.length === 0 && <p className="small-text">Tools to be added.</p>}
+        {technologies.length === 0 && <p className="small-text">Tools not listed yet.</p>}
         <a className="text-link" href={`/projects/${project.slug}`}>
-          Read project details <Icon name="arrow" size={16} />
+          View project details <Icon name="arrow" size={16} />
         </a>
       </div>
     </article>

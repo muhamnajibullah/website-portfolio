@@ -7,17 +7,14 @@ export function Contact({ content }: { content: Content }) {
     <section id="contact" className="container section contact-section">
       <div>
         <span className="eyebrow">Let’s connect</span>
-        <h2>{settings?.contact_heading || 'Let’s build something thoughtful.'}</h2>
-        <p>
-          {settings?.contact_text ||
-            'Add your contact details and social links in the CMS to make it easy for people to reach you.'}
-        </p>
+        <h2>{settings?.contact_heading || 'Let’s talk about your project.'}</h2>
+        <p>{settings?.contact_text || 'Contact information has not been added yet.'}</p>
         {profile?.email ? (
           <a className="contact-email" href={`mailto:${profile.email}`}>
             {profile.email} <Icon name="arrow" size={26} />
           </a>
         ) : (
-          <span className="placeholder-label">Contact details to be added</span>
+          <span className="placeholder-label">Contact details coming soon</span>
         )}
       </div>
       <div className="social-links">

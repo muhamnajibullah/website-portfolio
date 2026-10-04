@@ -13,23 +13,26 @@ export function MediaUpload({ onUploaded }: { onUploaded: () => Promise<void> })
       data = new FormData(form),
       file = data.get('image');
     try {
-      if (!(file instanceof File) || !file.size) throw new Error('Choose an image first.');
+      if (!(file instanceof File) || !file.size)
+        throw new Error('Select an image before uploading.');
       const url = await repository!.upload(file, String(data.get('alt') ?? ''));
-      setMessage(`Uploaded. Public URL: ${url}`);
+      setMessage(`Image uploaded. Copy this URL to use it in your profile or project: ${url}`);
       form.reset();
       await onUploaded();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Upload failed.');
+      setError(
+        error instanceof Error ? error.message : 'Could not upload the image. Please try again.',
+      );
     } finally {
       setBusy(false);
     }
   }
   return (
     <form className="upload-card" onSubmit={upload}>
-      <h2>Upload public media</h2>
+      <h2>Upload an image</h2>
       <p className="small-text">
-        PNG, JPEG or WebP · Maximum 5 MB · Public assets only. Uploaded images are publicly
-        accessible even when their metadata is a draft.
+        Choose a PNG, JPEG, or WebP image up to 5 MB. Anyone with the image link can view it, even
+        while the library item is a draft.
       </p>
       <div className="field">
         <label htmlFor="image">Image</label>
@@ -42,7 +45,7 @@ export function MediaUpload({ onUploaded }: { onUploaded: () => Promise<void> })
         />
       </div>
       <div className="field">
-        <label htmlFor="alt">Image description</label>
+        <label htmlFor="alt">Image description (alt text)</label>
         <input id="alt" name="alt" required maxLength={300} />
       </div>
       <button className="button primary" disabled={busy}>

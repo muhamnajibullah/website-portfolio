@@ -95,7 +95,7 @@ export const settingsSchema = z.object({
   description: text(500).default(''),
   site_url: optionalUrl,
   og_image_url: optionalUrl,
-  contact_heading: text(200).default('Let’s build something thoughtful.'),
+  contact_heading: text(200).default('Let’s talk about your project.'),
   contact_text: text(1000).default(''),
 });
 export const pointSchema = z
@@ -115,15 +115,15 @@ export const pointSchema = z
   })
   .refine(
     (p) => Boolean(p.project_id) !== Boolean(p.experience_id),
-    'Choose exactly one project or experience',
+    'Choose either a project or a work experience, not both.',
   )
   .refine(
     (p) => p.interaction_radius <= p.focus_radius && p.focus_radius <= p.discovery_radius,
-    'Radii must satisfy interaction ≤ focus ≤ discovery',
+    'Open details distance must be no greater than preview distance. Preview distance must be no greater than marker visibility distance.',
   )
   .refine(
     (p) => p.marker_type === (p.project_id ? 'project' : 'experience'),
-    'Marker type must match linked content',
+    'Choose a destination type that matches the linked project or work experience.',
   );
 export const mediaSchema = z.object({
   ...base,

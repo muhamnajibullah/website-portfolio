@@ -6,7 +6,11 @@ import { pageMetadata } from '@portfolio/seo';
 
 export function recordLabel(record: ContentRecord | Record<string, unknown>) {
   for (const key of ['name', 'title', 'organization', 'label', 'site_name', 'alt', 'path']) {
-    if (key in record && typeof record[key as keyof typeof record] === 'string')
+    if (
+      key in record &&
+      typeof record[key as keyof typeof record] === 'string' &&
+      String(record[key as keyof typeof record]).trim()
+    )
       return String(record[key as keyof typeof record]);
   }
   return record.id as string;
@@ -60,12 +64,51 @@ const multiline = new Set([
   'challenges',
   'solutions',
 ]);
+const fieldLabels: Record<string, string> = {
+  slug: 'Project URL name',
+  summary: 'Short description',
+  description: 'Full description',
+  intro: 'Short introduction',
+  about: 'About you',
+  challenges: 'Project problems',
+  solutions: 'Solutions provided',
+  image_url: 'Image URL',
+  image_alt: 'Image description (alt text)',
+  image_width: 'Image width (pixels)',
+  image_height: 'Image height (pixels)',
+  live_url: 'Live project URL',
+  repository_url: 'Source code URL',
+  sort_order: 'Display order',
+  featured: 'Show in featured projects',
+  project_id: 'Project',
+  experience_id: 'Work experience',
+  category_id: 'Tool category',
+  technology_id: 'Tool',
+  media_id: 'Gallery image',
+  related_project_ids: 'Related projects',
+  alt: 'Image description (alt text)',
+  width: 'Image width (pixels)',
+  height: 'Image height (pixels)',
+  url: 'URL',
+  path: 'Image storage path',
+  mime_type: 'Image file type',
+  size_bytes: 'File size (bytes)',
+  marker_type: 'Destination type',
+  x: 'Horizontal position (X)',
+  y: 'Height in the 3D world (Y)',
+  z: 'Depth position (Z)',
+  discovery_radius: 'Marker visibility distance',
+  focus_radius: 'Preview distance',
+  interaction_radius: 'Open details distance',
+  github_url: 'GitHub URL',
+  linkedin_url: 'LinkedIn URL',
+  site_url: 'Portfolio website URL',
+  og_image_url: 'Social sharing image URL',
+  contact_heading: 'Contact section heading',
+  contact_text: 'Contact section text',
+};
 const humanize = (key: string) =>
-  key === 'challenges'
-    ? 'Project problems'
-    : key === 'solutions'
-      ? 'Solutions provided'
-      : key.replace(/_/g, ' ').replace(/^./, (value) => value.toUpperCase());
+  fieldLabels[key] ?? key.replace(/_/g, ' ').replace(/^./, (value) => value.toUpperCase());
 
 export function RecordEditor({
   table,
@@ -94,7 +137,26 @@ export function RecordEditor({
     if (!result.success) {
       setError(
         result.error.issues
-          .map((issue) => `${issue.path.join('.') || 'Record'}: ${issue.message}`)
+          .map((issue) => {
+            const key = String(issue.path[0] ?? 'Item');
+            let message = issue.message;
+            if (referenceTables[key]) message = 'Choose an item from the list.';
+            else if (key === 'slug')
+              message = 'Use lowercase letters, numbers, and hyphens (up to 120 characters).';
+            else if (key.includes('url'))
+              message = 'Enter a full URL starting with https:// or http://.';
+            else if (issue.code === 'too_small' && issue.origin === 'string')
+              message = 'This field is required.';
+            else if (issue.code === 'too_small' && issue.origin === 'number')
+              message = `Enter a number of at least ${issue.minimum}.`;
+            else if (issue.code === 'too_big')
+              message =
+                issue.origin === 'number'
+                  ? `Enter a number no greater than ${issue.maximum}.`
+                  : `Use no more than ${issue.maximum} ${issue.origin === 'string' ? 'characters' : 'entries'}.`;
+            else if (issue.code === 'invalid_type') message = 'Enter a valid value.';
+            return `${humanize(key)}: ${message}`;
+          })
           .join(' · '),
       );
       return;
@@ -102,7 +164,7 @@ export function RecordEditor({
     try {
       await onSave(result.data);
     } catch {
-      setError('Save failed. Check the linked records and your permissions, then try again.');
+      setError('Could not save this item. Check the linked items and your access, then try again.');
     }
   }
   const previewTitle =
@@ -117,7 +179,11 @@ export function RecordEditor({
           value.title || value.name || value.organization || value.site_name || 'Content preview',
         );
   return (
-    <Dialog title={recordLabel(value) || 'New record'} onClose={onClose} className="editor-dialog">
+    <Dialog
+      title={recordLabel(value) === value.id ? 'Add item' : recordLabel(value)}
+      onClose={onClose}
+      className="editor-dialog"
+    >
       <div className="editor-tabs">
         <button
           className={`button ${!preview ? 'primary' : ''}`}
@@ -160,7 +226,7 @@ export function RecordEditor({
               </div>
             ))}
           <p className="small-text">
-            Preview reflects unsaved form values. Drafts remain protected by database policies.
+            This preview includes unsaved changes. Only administrators can view drafts.
           </p>
         </article>
       ) : (
@@ -181,7 +247,9 @@ export function RecordEditor({
                         onChange={(event) => change(key, event.target.value)}
                       >
                         {['draft', 'published', 'archived'].map((status) => (
-                          <option key={status}>{status}</option>
+                          <option key={status} value={status}>
+                            {humanize(status)}
+                          </option>
                         ))}
                       </select>
                     ) : key === 'marker_type' ? (
@@ -190,8 +258,8 @@ export function RecordEditor({
                         value={String(data)}
                         onChange={(event) => change(key, event.target.value)}
                       >
-                        <option>project</option>
-                        <option>experience</option>
+                        <option value="project">Project</option>
+                        <option value="experience">Work experience</option>
                       </select>
                     ) : reference ? (
                       <select
@@ -204,7 +272,7 @@ export function RecordEditor({
                           )
                         }
                       >
-                        <option value="">Choose a record</option>
+                        <option value="">Choose an item</option>
                         {content[reference].map((item) => (
                           <option key={item.id} value={item.id}>
                             {recordLabel(item)} ({item.status})
@@ -291,16 +359,29 @@ export function RecordEditor({
                     {Array.isArray(data) && key !== 'related_project_ids' && (
                       <small>One entry per line.</small>
                     )}
-                    {key === 'sort_order' && <small>Lower values appear first.</small>}
+                    {key === 'sort_order' && (
+                      <small>Smaller numbers appear first on the portfolio.</small>
+                    )}
+                    {key === 'slug' && (
+                      <small>
+                        Use lowercase letters, numbers, and hyphens, for example: my-project.
+                      </small>
+                    )}
+                    {key === 'related_project_ids' && (
+                      <small>
+                        Hold Ctrl on Windows or Command on Mac to select more than one project.
+                      </small>
+                    )}
                     {key === 'image_url' && (
                       <small>
-                        Use a public image URL from Media Library. Provide descriptive image alt
-                        text.
+                        Paste the uploaded image URL from Media Library. Add its description, width,
+                        and height below.
                       </small>
                     )}
                     {key === 'status' && (
                       <small>
-                        Published records are public. Linked parent records must also be published.
+                        Published items appear on the portfolio. For a linked item, publish its
+                        project, category, or experience too.
                       </small>
                     )}
                   </div>

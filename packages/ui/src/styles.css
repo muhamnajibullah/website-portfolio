@@ -353,6 +353,11 @@ html {
   flex-shrink: 0;
 }
 .dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: fit-content;
+  overflow: auto;
   border: 1px solid var(--line);
   border-radius: 18px;
   width: min(620px, calc(100% - 32px));

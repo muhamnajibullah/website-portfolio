@@ -39,7 +39,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
       } catch {
         if (active && generation === current) {
           setState('denied');
-          setError('Authorization could not be verified. Please sign in again.');
+          setError('Could not check your access. Please sign in again.');
         }
       }
     };
@@ -70,9 +70,9 @@ export function AuthGate({ children }: { children: ReactNode }) {
         email: String(form.get('email')),
         password: String(form.get('password')),
       });
-      if (error) setError('Unable to sign in. Check your credentials and try again.');
+      if (error) setError('Could not sign in. Check your email and password, then try again.');
     } catch {
-      setError('Unable to sign in. Please try again later.');
+      setError('Sign-in is unavailable right now. Please try again later.');
     } finally {
       setBusy(false);
     }
@@ -84,7 +84,8 @@ export function AuthGate({ children }: { children: ReactNode }) {
     const code = String(new FormData(event.currentTarget).get('code'));
     try {
       const { error } = await repository!.client.auth.mfa.challengeAndVerify({ factorId, code });
-      if (error) setError('Unable to verify this code. Please try again.');
+      if (error)
+        setError('Could not verify this code. Enter the latest code from your authenticator app.');
     } catch {
       setError('Verification is unavailable. Please try again later.');
     } finally {
@@ -107,10 +108,10 @@ export function AuthGate({ children }: { children: ReactNode }) {
         {!repository ? (
           <>
             <span className="eyebrow">Setup required</span>
-            <h1>Your content workspace.</h1>
+            <h1>Finish setting up the CMS</h1>
             <p>
-              The CMS is ready to connect to Supabase. Add your public configuration and apply the
-              migrations to enable secure sign-in.
+              Connect the CMS to Supabase before signing in. Follow the setup instructions in
+              README.md.
             </p>
             <div className="notice">
               Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in apps/cms/.env.local. Setup
@@ -126,15 +127,12 @@ export function AuthGate({ children }: { children: ReactNode }) {
         ) : state === 'loading' ? (
           <>
             <h1>Checking your session…</h1>
-            <p role="status">Verifying administrator access.</p>
+            <p role="status">Checking whether you can manage this portfolio.</p>
           </>
         ) : state === 'denied' ? (
           <>
-            <h1>Administrator access required.</h1>
-            <p>
-              This account does not have access to the CMS. Administrator permissions must be
-              granted from a trusted database session.
-            </p>
+            <h1>This account cannot access the CMS.</h1>
+            <p>Sign in with the administrator account for this portfolio.</p>
             <button className="button" onClick={() => void repository!.client.auth.signOut()}>
               Sign out
             </button>
@@ -142,7 +140,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
         ) : state === 'mfa' ? (
           <>
             <h1>Verify your identity.</h1>
-            <p>Enter the code from your authenticator app.</p>
+            <p>Enter the six-digit code from your authenticator app.</p>
             <form onSubmit={verify}>
               <div className="field">
                 <label htmlFor="code">Verification code</label>
@@ -166,7 +164,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
           </>
         ) : (
           <>
-            <span className="eyebrow">A space for your story</span>
+            <span className="eyebrow">Portfolio administration</span>
             <h1>Welcome back.</h1>
             <p>Sign in to manage your portfolio.</p>
             <form onSubmit={signIn}>
@@ -197,9 +195,7 @@ export function AuthGate({ children }: { children: ReactNode }) {
                 <Icon />
               </button>
             </form>
-            <p className="small-text">
-              Only authorized administrators can access published and draft content.
-            </p>
+            <p className="small-text">This sign-in page is for the portfolio administrator.</p>
           </>
         )}
         {error && (

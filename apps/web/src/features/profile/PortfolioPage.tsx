@@ -20,29 +20,27 @@ export function PortfolioPage({
       <section className="container hero" aria-labelledby="hero-heading">
         <div className="hero-copy">
           <span className="eyebrow hero-eyebrow">
-            <span className="status-dot" />{' '}
-            {profile?.availability || 'Personal portfolio / In preparation'}
+            <span className="status-dot" /> {profile?.availability || 'Portfolio in progress'}
           </span>
           <h1 id="hero-heading">
-            <span className="hero-role">Software Engineer</span>Good software.
+            <span className="hero-role">Software Engineer</span>Building software.
             <br />
-            <span className="hero-muted">Thoughtfully built.</span>
+            <span className="hero-muted">Solving problems.</span>
           </h1>
           <p className="hero-intro">
-            {profile?.intro ||
-              'This is your space to introduce yourself, your approach to engineering, and the problems you enjoy solving. Add your introduction in the CMS.'}
+            {profile?.intro || 'Profile information has not been added yet.'}
           </p>
-          {!profile && <span className="placeholder-label">Profile content placeholder</span>}
+          {!profile && <span className="placeholder-label">Profile not added yet</span>}
           <div className="actions hero-actions">
             <a className="button primary" href="#projects">
               View projects <Icon />
             </a>
             <button id="world-entry" className="button ghost" onClick={onExplore}>
-              <Icon name="flight" /> Explore interactive world
+              <Icon name="flight" /> Explore in 3D
             </button>
           </div>
           <div className="hero-note">
-            <span className="tiny-line" /> Clear thinking. Considered details. Useful outcomes.
+            <span className="tiny-line" /> Projects, tools, and work experience.
           </div>
         </div>
         <div className="portrait-wrap">
@@ -58,7 +56,7 @@ export function PortfolioPage({
             <div
               className="portrait-placeholder"
               role="img"
-              aria-label="Personal photograph placeholder. Add your own photo in the CMS."
+              aria-label="Profile photo placeholder. No photo has been added yet."
             >
               <div className="portrait-grid" />
               <span className="portrait-cross top">+</span>
@@ -67,43 +65,40 @@ export function PortfolioPage({
                 <div className="silhouette-head" />
                 <div className="silhouette-body" />
               </div>
-              <span className="photo-label">YOUR PHOTO HERE</span>
+              <span className="photo-label">PHOTO NOT ADDED YET</span>
             </div>
           )}
           <div className="portrait-caption">
             <span>
               {profile?.name ?? 'Your name'}
-              <small>{profile?.location || 'Location to be added'}</small>
+              <small>{profile?.location || 'Location not added yet'}</small>
             </span>
             <span className="caption-symbol">↗</span>
           </div>
-          <span className="portrait-index">01 / THE PERSON BEHIND THE CODE</span>
+          <span className="portrait-index">01 / PROFILE</span>
         </div>
       </section>
       <div className="container section-divider">
-        <span>Engineering with purpose</span>
+        <span>Software Engineer portfolio</span>
         <span>Scroll to explore ↓</span>
       </div>
       <section id="about" className="container section about-section">
         <div>
-          <SectionLabel number="01" label="A little about me" />
+          <SectionLabel number="01" label="About me" />
           <h2>
-            Behind the
-            <br /> implementation.
+            About
+            <br /> me.
           </h2>
         </div>
         <div>
           <p className="about-lead text-block">
-            {profile?.about ||
-              'Your story belongs here. Share your background, how you work, and what matters to you as a software engineer.'}
+            {profile?.about || 'Background and approach to software engineering will appear here.'}
           </p>
           {!profile && (
-            <p className="small-text">
-              Waiting for your authentic profile. Manage this section from Profile in the CMS.
-            </p>
+            <p className="small-text">This section is waiting for profile information.</p>
           )}
           <a href="#contact" className="text-link">
-            Start a conversation <Icon size={18} />
+            Get in touch <Icon size={18} />
           </a>
         </div>
       </section>
@@ -111,9 +106,9 @@ export function PortfolioPage({
         <div className="section-heading">
           <div>
             <SectionLabel number="02" label="Selected work" />
-            <h2>Projects with a purpose.</h2>
+            <h2>Selected projects</h2>
           </div>
-          <span className="section-aside">From an idea to a working product.</span>
+          <span className="section-aside">The problem, the solution, and the tools used.</span>
         </div>
         {featured.length ? (
           <div className="project-grid">
@@ -122,9 +117,8 @@ export function PortfolioPage({
             ))}
           </div>
         ) : (
-          <EmptyState title="Your selected work goes here">
-            Publish a project and mark it as featured in the CMS. Real project details and images
-            will appear here.
+          <EmptyState title="No featured projects yet">
+            Featured projects will appear here once published.
           </EmptyState>
         )}
         {content.projects.some((project) => !project.featured) && (
@@ -143,18 +137,18 @@ export function PortfolioPage({
       <section id="tools" className="container section">
         <div className="section-heading">
           <div>
-            <SectionLabel number="03" label="My toolkit" />
-            <h2>The right tools for the job.</h2>
+            <SectionLabel number="03" label="Tools" />
+            <h2>Tools and technologies</h2>
           </div>
-          <span className="section-aside">A toolkit, always evolving.</span>
+          <span className="section-aside">Technologies used across projects and work.</span>
         </div>
         <Technologies content={content} />
       </section>
       <section id="experience" className="container section">
         <div className="section-heading">
           <div>
-            <SectionLabel number="04" label="Along the way" />
-            <h2>Experience & contributions.</h2>
+            <SectionLabel number="04" label="Experience" />
+            <h2>Work experience</h2>
           </div>
         </div>
         <ExperienceTimeline content={content} />
@@ -162,19 +156,20 @@ export function PortfolioPage({
       <section className="container section">
         <div className="interactive-cta">
           <div className="cta-copy">
-            <span className="eyebrow">A different perspective</span>
+            <span className="eyebrow">Optional 3D tour</span>
             <h2>
-              A small world.
-              <br />A little curiosity.
+              Explore the portfolio
+              <br />
+              in 3D.
             </h2>
             <p>
-              Take the scenic route through my portfolio. Fly a helicopter, find a project, and
-              explore at your own pace.
+              Fly a helicopter to discover projects and work experience. Return to the regular
+              portfolio at any time.
             </p>
             <button className="button primary" onClick={onExplore}>
-              Explore the interactive world <Icon name="flight" />
+              Start the 3D tour <Icon name="flight" />
             </button>
-            <span className="small-text">Optional exploration · Same portfolio · Your pace</span>
+            <span className="small-text">The same portfolio, with helicopter controls.</span>
           </div>
           <WorldIllustration />
         </div>
@@ -237,7 +232,7 @@ function WorldIllustration() {
         />
       </svg>
       <span className="illustration-caption">
-        A helicopter. A handful of ideas. Room to explore.
+        Fly toward a marker to view a project or work experience.
       </span>
     </div>
   );

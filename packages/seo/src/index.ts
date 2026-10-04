@@ -8,7 +8,7 @@ export function pageMetadata(content: Content, project?: Project) {
     description:
       project?.summary ||
       settings?.description ||
-      'A software engineer’s projects, tools, experience and interactive portfolio.',
+      'Software Engineer portfolio with projects, tools, work experience, and an optional 3D tour.',
     image: project?.image_url || settings?.og_image_url || '',
     name,
   };

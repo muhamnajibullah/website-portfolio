@@ -46,7 +46,7 @@ export function MfaSettings() {
       if (error) throw error;
       setEnrollment(null);
     } catch {
-      setError('Unable to verify. Check your authenticator code.');
+      setError('Could not verify the code. Enter the latest six-digit code from your app.');
     } finally {
       setBusy(false);
     }
@@ -54,10 +54,10 @@ export function MfaSettings() {
   return (
     <div className="mfa-card">
       <div>
-        <h2>Protect your content.</h2>
+        <h2>Add extra sign-in protection</h2>
         <p className="small-text">
-          Enable an authenticator for a second layer of protection. Database policies require a
-          verified MFA session once a factor is enrolled.
+          Use an authenticator app for extra protection. After setup, you will also need an app code
+          when signing in.
         </p>
       </div>
       <button className="button" onClick={() => void enroll()} disabled={busy}>

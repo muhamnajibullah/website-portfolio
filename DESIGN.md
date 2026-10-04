@@ -43,9 +43,9 @@ tidak membesar berlebihan pada 2K/4K.
 
 Mini-game tidak autoplay di landing page.
 
-CTA membuka lightweight intro: - Explore My Interactive Portfolio -
-WASD: Move - Mouse/Drag: Look - E/Button: Interact - Enter World - Stay
-in Normal Mode
+CTA `Explore in 3D` / `Start the 3D tour` membuka lightweight intro:
+`Explore the portfolio in 3D`, petunjuk keyboard/touch, `Enter world`,
+dan `Stay on the portfolio`. World memakai tombol `Back to portfolio`.
 
 Assets 3D dimuat setelah intent user jelas.
 
@@ -53,6 +53,16 @@ Intro, world, dan dialog detail/settings memakai shared scroll lock.
 Saat kembali ke Normal Mode, pulihkan posisi scroll dan fokus pada CTA
 yang membuka world, termasuk CTA di bawah halaman. Lock dialog nested
 tidak boleh melepas lock world atau membuat halaman terkunci setelah exit.
+
+Semua popup aplikasi memakai shared native `Dialog`, termasuk konfirmasi
+hapus CMS. Popup berada di tengah viewport pada kedua sumbu, dengan batas
+tinggi viewport dan scroll di dalam popup untuk konten panjang. Fokus
+keyboard tetap berada di popup dan kembali ke tombol asal setelah ditutup.
+Konfirmasi hapus tidak dapat ditutup saat permintaan hapus sedang berjalan.
+
+Copy antarmuka memakai Bahasa Inggris sederhana: tombol menjelaskan aksi,
+empty states menjelaskan konten yang belum tersedia, dan pesan error memberi
+langkah berikutnya. Konten profil/project tetap berasal dari CMS.
 
 Interaction feedback menggunakan hover/press tombol, pergerakan ikon,
 underline navigation, tonal card hover, dan entrance pendek pada hero/dialog.

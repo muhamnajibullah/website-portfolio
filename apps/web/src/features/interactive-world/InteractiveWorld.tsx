@@ -149,7 +149,7 @@ export default function InteractiveWorld({
                       <span key={technology.id}>{technology.name}</span>
                     ))}
                   </div>
-                  <small>Open details for problem & solution</small>
+                  <small>Open details to read the problem and solution</small>
                 </div>
               )}
             </div>
@@ -160,7 +160,7 @@ export default function InteractiveWorld({
         <div className="world-brand">
           <Icon name="flight" />
           <div>
-            Interactive portfolio<small>HELICOPTER / FREE EXPLORATION</small>
+            Portfolio in 3D<small>HELICOPTER TOUR</small>
           </div>
         </div>
         <div className="actions">
@@ -168,23 +168,23 @@ export default function InteractiveWorld({
             Settings
           </button>
           <button className="button primary" onClick={onExit}>
-            Normal Mode <Icon name="close" size={16} />
+            Back to portfolio <Icon name="close" size={16} />
           </button>
         </div>
       </header>
       <aside className="world-hint">
-        <span className="eyebrow">Your pace. Your path.</span>
+        <span className="eyebrow">How to explore</span>
         <p>
           {points.length
             ? 'Fly toward a marker to discover a project or experience.'
-            : 'Your world is ready. Publish projects or experiences and link interactive points in the CMS to add destinations.'}
+            : 'No destinations have been added yet. Projects and work experience will appear here once linked.'}
         </p>
-        <span className="placeholder-label">Development helicopter & environment</span>
+        <span className="placeholder-label">Temporary 3D models</span>
       </aside>
       <div className="world-status" role="status">
         {near
-          ? `${pointTitle(near.point)} · ${near.zone === 'interaction' ? 'Ready to open' : near.zone === 'focus' ? 'Almost there' : 'Discovered'}`
-          : 'Free exploration'}
+          ? `${pointTitle(near.point)} · ${near.zone === 'interaction' ? 'Ready to open' : near.zone === 'focus' ? 'Move closer to view' : 'Destination found'}`
+          : 'Exploring the world'}
       </div>
       <div className="world-bottom">
         <div className="desktop-help">
@@ -250,7 +250,7 @@ export default function InteractiveWorld({
                 </span>
               ))}
           </div>
-          {linkedIds.length === 0 && <p className="small-text">Tools to be added.</p>}
+          {linkedIds.length === 0 && <p className="small-text">Tools not listed yet.</p>}
           <div className="actions">
             {project && (
               <a className="button primary" href={`/projects/${project.slug}`}>
@@ -282,11 +282,11 @@ export default function InteractiveWorld({
             >
               {['auto', 'low', 'medium', 'high'].map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {value === 'auto' ? 'Automatic' : value[0]!.toUpperCase() + value.slice(1)}
                 </option>
               ))}
             </select>
-            <small>Auto lowers rendering resolution when frame times increase.</small>
+            <small>Automatic lowers resolution when needed to keep movement smooth.</small>
           </div>
           <div className="field">
             <label htmlFor="sensitivity">Camera sensitivity: {sensitivity.toFixed(1)}</label>
@@ -305,8 +305,8 @@ export default function InteractiveWorld({
             />
           </div>
           <p className="small-text">
-            Reduced motion follows your system preference. No camera shake, motion blur, or forced
-            camera movement. Use R to reset your flight.
+            Motion follows your device accessibility settings. Press R or choose Reset flight to
+            return to the starting point.
           </p>
           <button className="button" onClick={() => setSettingsOpen(false)}>
             Continue exploring
