@@ -49,28 +49,48 @@ export function createWorld({
   interact: () => void;
   onFailure: () => void;
 }) {
+  const readPalette = () => {
+    const styles = getComputedStyle(document.documentElement);
+    const color = (token: string) => styles.getPropertyValue(token).trim();
+    return {
+      sky: color('--world-sky'),
+      ground: color('--world-ground'),
+      pad: color('--world-pad'),
+      building: color('--world-building'),
+      paint: color('--world-paint'),
+      glass: color('--world-glass'),
+      frame: color('--world-frame'),
+      idle: color('--world-marker-idle'),
+      discovery: color('--world-marker-discovery'),
+      interaction: color('--world-marker-interaction'),
+      light: color('--neutral-white'),
+    };
+  };
+  let palette = readPalette();
   const renderer = new WebGLRenderer({
     antialias: false,
     alpha: false,
     powerPreference: 'low-power',
   });
   const scene = new Scene();
-  scene.background = new Color('#e4edf0');
-  scene.fog = new Fog('#e4edf0', 35, 105);
+  const sky = new Color(palette.sky);
+  const fog = new Fog(palette.sky, 35, 105);
+  scene.background = sky;
+  scene.fog = fog;
   const camera = new PerspectiveCamera(52, 1, 0.1, 140);
-  scene.add(new AmbientLight('#ffffff', 2));
-  const sun = new DirectionalLight('#fff9ee', 2.2);
+  scene.add(new AmbientLight(palette.light, 2));
+  const sun = new DirectionalLight(palette.light, 2.2);
   sun.position.set(15, 28, 10);
   scene.add(sun);
-  const green = new MeshStandardMaterial({ color: '#c6d8ce', roughness: 1 });
-  const concrete = new MeshStandardMaterial({ color: '#f0f2ed', roughness: 1 });
+  const green = new MeshStandardMaterial({ color: palette.ground, roughness: 1 });
+  const concrete = new MeshStandardMaterial({ color: palette.pad, roughness: 1 });
   const island = new Mesh(new CylinderGeometry(58, 55, 2, 48), green);
   island.position.y = -1.5;
   scene.add(island);
   const pad = new Mesh(new CylinderGeometry(5, 5, 0.15, 24), concrete);
   pad.position.set(0, -0.42, 12);
   scene.add(pad);
-  const hMaterial = new MeshStandardMaterial({ color: '#819b90' });
+  const hMaterial = new MeshStandardMaterial({ color: palette.discovery });
   for (const x of [-1, 1]) {
     const stripe = new Mesh(new BoxGeometry(0.35, 0.02, 3), hMaterial);
     stripe.position.set(x, -0.33, 12);
@@ -81,8 +101,16 @@ export function createWorld({
   scene.add(cross);
   const pointGroups = new Map<string, Group>();
   const pointGeometry = new CylinderGeometry(0.55, 0.55, 0.25, 12);
-  const projectMaterial = new MeshStandardMaterial({ color: '#6d8fac', roughness: 0.8 });
-  const experienceMaterial = new MeshStandardMaterial({ color: '#7b9b8b', roughness: 0.8 });
+  const projectMaterial = new MeshStandardMaterial({ color: palette.building, roughness: 0.8 });
+  const experienceMaterial = new MeshStandardMaterial({ color: palette.ground, roughness: 0.8 });
+  const markerMaterials = new Map<string, MeshStandardMaterial>();
+  const markerZones = new Map<string, string>();
+  const markerColor = (zone: string | undefined) =>
+    zone === 'interaction'
+      ? palette.interaction
+      : zone === 'discovery' || zone === 'focus'
+        ? palette.discovery
+        : palette.idle;
   for (const point of points) {
     const group = new Group();
     group.position.set(point.x, 0, point.z);
@@ -96,14 +124,35 @@ export function createWorld({
     );
     building.position.y = 1;
     group.add(building);
-    const marker = new Mesh(pointGeometry, point.project_id ? projectMaterial : experienceMaterial);
+    const markerMaterial = new MeshStandardMaterial({ color: palette.idle, roughness: 0.8 });
+    markerMaterials.set(point.id, markerMaterial);
+    const marker = new Mesh(pointGeometry, markerMaterial);
     marker.position.y = point.y + 1;
     group.add(marker);
     scene.add(group);
     pointGroups.set(point.id, group);
   }
-  const helicopter = createHelicopter();
+  const helicopter = createHelicopter(palette);
   scene.add(helicopter.group);
+  // Read CSS only on theme changes, never in the animation loop. Final GLB assets stay natural.
+  const themeObserver = new MutationObserver(() => {
+    palette = readPalette();
+    sky.set(palette.sky);
+    fog.color.set(palette.sky);
+    green.color.set(palette.ground);
+    concrete.color.set(palette.pad);
+    hMaterial.color.set(palette.discovery);
+    projectMaterial.color.set(palette.building);
+    experienceMaterial.color.set(palette.ground);
+    helicopter.materials.paint.color.set(palette.paint);
+    helicopter.materials.glass.color.set(palette.glass);
+    helicopter.materials.frame.color.set(palette.frame);
+    markerMaterials.forEach((material, id) => material.color.set(markerColor(markerZones.get(id))));
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme'],
+  });
   let state = createFlightState(),
     disposed = false;
   let assetRotor: Group | Mesh | null = null;
@@ -238,6 +287,10 @@ export function createWorld({
         group = pointGroups.get(point.id);
       if (!label || !group) continue;
       const zone = proximity(state.position, point).zone;
+      if (markerZones.get(point.id) !== zone) {
+        markerZones.set(point.id, zone);
+        markerMaterials.get(point.id)?.color.set(markerColor(zone));
+      }
       projected.set(point.x, point.y + 2.2, point.z).project(camera);
       const visible =
         zone !== 'outside' &&
@@ -287,6 +340,7 @@ export function createWorld({
       renderer.setAnimationLoop(null);
       controlsCleanup();
       observer.disconnect();
+      themeObserver.disconnect();
       document.removeEventListener('visibilitychange', visibility);
       renderer.domElement.removeEventListener('webglcontextlost', loseContext);
       const geometries = new Set<BufferGeometry>(),

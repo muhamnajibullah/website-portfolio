@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react';
 import type { Content } from '@portfolio/types';
-import { Dialog, ErrorBoundary, Icon } from '@portfolio/ui';
+import { Dialog, ErrorBoundary, Icon, ThemeToggle, useScrollLock } from '@portfolio/ui';
 import { pageMetadata } from '@portfolio/seo';
 import { PortfolioPage } from '../features/profile/PortfolioPage';
 import { ProjectPage } from '../features/projects/ProjectPage';
@@ -21,6 +21,8 @@ export function PublicApp({
 }) {
   const [mode, setMode] = useState<'normal' | 'intro' | 'world'>('normal');
   const [menu, setMenu] = useState(false);
+  const entry = useRef<{ button: HTMLButtonElement; x: number; y: number } | null>(null);
+  useScrollLock(mode === 'world');
   const slug = path.startsWith('/projects/') ? path.split('/')[2] : undefined;
   const project = content.projects.find((item) => item.slug === slug);
   const missing = path !== '/' && !(slug && project);
@@ -33,17 +35,18 @@ export function PublicApp({
       .querySelector('meta[name="description"]')
       ?.setAttribute('content', metadata.description);
   }, [content, project, missing]);
-  useEffect(() => {
-    const previous = document.body.style.overflow;
-    if (mode === 'world') document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [mode]);
-  const exit = () => {
-    setMode('normal');
-    requestAnimationFrame(() => document.getElementById('world-entry')?.focus());
+  const openIntro = (event: MouseEvent<HTMLButtonElement>) => {
+    entry.current = { button: event.currentTarget, x: window.scrollX, y: window.scrollY };
+    setMode('intro');
   };
+  const exit = useCallback(() => {
+    setMode('normal');
+    requestAnimationFrame(() => {
+      const previous = entry.current;
+      previous?.button.focus({ preventScroll: true });
+      if (previous) window.scrollTo({ left: previous.x, top: previous.y, behavior: 'instant' });
+    });
+  }, []);
   return (
     <>
       <a className="skip-link" href="#main">
@@ -60,15 +63,18 @@ export function PublicApp({
               <span className="brand-dot">.</span>
             </span>
           </a>
-          <button
-            className="icon-button mobile-menu"
-            aria-label="Toggle navigation"
-            aria-expanded={menu}
-            aria-controls="navigation"
-            onClick={() => setMenu(!menu)}
-          >
-            <Icon name={menu ? 'close' : 'menu'} />
-          </button>
+          <div className="header-actions">
+            <ThemeToggle />
+            <button
+              className="icon-button mobile-menu"
+              aria-label="Toggle navigation"
+              aria-expanded={menu}
+              aria-controls="navigation"
+              onClick={() => setMenu(!menu)}
+            >
+              <Icon name={menu ? 'close' : 'menu'} />
+            </button>
+          </div>
           <nav
             id="navigation"
             className={menu ? 'navigation open' : 'navigation'}
@@ -112,7 +118,7 @@ export function PublicApp({
       ) : project ? (
         <ProjectPage project={project} content={content} />
       ) : (
-        <PortfolioPage content={content} onExplore={() => setMode('intro')} />
+        <PortfolioPage content={content} onExplore={openIntro} />
       )}
       <footer className="container site-footer">
         <a className="brand" href="/">

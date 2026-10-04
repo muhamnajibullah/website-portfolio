@@ -49,23 +49,37 @@ Artefak lokal (diabaikan Git): `playwright-report/`, `test-results/preview-deskt
 
 Portfolio: <https://website-portfolio-one-sandy.vercel.app>. CMS: <https://website-portfolio-cms.vercel.app>. Kedua project memakai Node.js 22.x/pnpm 10.32.1, root aplikasi yang tepat, shared workspace, Supabase production dan GitHub production branch `master`.
 
-| Check | Hasil |
-| --- | --- |
-| Deployment web + CMS | READY; production aliases memberi HTTP 200 tanpa login Vercel |
-| Supabase migration | `202610030001_portfolio.sql` applied dengan migration history CLI |
-| Cloud RLS | `supabase/tests/deployment-check.sql` pass: anon published-only/read-only, non-admin mutation/draft/self-promotion ditolak, exposed RLS dan bucket restrictions benar |
-| Auth configuration | Signup disabled; Site URL CMS dan exact redirect allowlist; sign-in/token verification limits 10 |
-| Browser CMS → Supabase | Password login, admin RPC/dashboard, draft save/delete, draft hidden from public, sign-out pass |
-| Browser CMS → Storage | PNG upload, draft metadata, public image HTTP 200, metadata dan storage object cleanup pass |
-| Public rendering | HTTP 200, one logical H1, placeholder content, robots/sitemap memakai production origin |
-| Responsive production | 360/390/430/768/820/1024/1366/1440/1920/2560/3840px tanpa horizontal overflow |
-| Accessibility production | Axe: Normal Mode dan CMS login tanpa violations |
-| Interactive production | Tidak ada Three.js chunk sebelum Enter world; canvas, Low quality, reset, exit dan focus return pass |
-| Browser/bundle safety | Tidak ditemukan page errors/failed requests; generated password, full secret key dan service-role JWT tidak ditemukan pada bundle yang dimuat |
-| Vercel headers | CSP, nosniff, frame protection dan referrer policy diterapkan; CMS noindex/nofollow dan no-store |
-| Vercel error log scan | Tidak ada error log pada kedua project untuk interval satu jam saat pemeriksaan |
-| Web production initial bundle | 172.8 KB gzip dengan Supabase aktif; di bawah budget 190 KB; Three.js tetap lazy |
+| Check                         | Hasil                                                                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Deployment web + CMS          | READY; production aliases memberi HTTP 200 tanpa login Vercel                                                                                                         |
+| Supabase migration            | `202610030001_portfolio.sql` applied dengan migration history CLI                                                                                                     |
+| Cloud RLS                     | `supabase/tests/deployment-check.sql` pass: anon published-only/read-only, non-admin mutation/draft/self-promotion ditolak, exposed RLS dan bucket restrictions benar |
+| Auth configuration            | Signup disabled; Site URL CMS dan exact redirect allowlist; sign-in/token verification limits 10                                                                      |
+| Browser CMS → Supabase        | Password login, admin RPC/dashboard, draft save/delete, draft hidden from public, sign-out pass                                                                       |
+| Browser CMS → Storage         | PNG upload, draft metadata, public image HTTP 200, metadata dan storage object cleanup pass                                                                           |
+| Public rendering              | HTTP 200, one logical H1, placeholder content, robots/sitemap memakai production origin                                                                               |
+| Responsive production         | 360/390/430/768/820/1024/1366/1440/1920/2560/3840px tanpa horizontal overflow                                                                                         |
+| Accessibility production      | Axe: Normal Mode dan CMS login tanpa violations                                                                                                                       |
+| Interactive production        | Tidak ada Three.js chunk sebelum Enter world; canvas, Low quality, reset, exit dan focus return pass                                                                  |
+| Browser/bundle safety         | Tidak ditemukan page errors/failed requests; generated password, full secret key dan service-role JWT tidak ditemukan pada bundle yang dimuat                         |
+| Vercel headers                | CSP, nosniff, frame protection dan referrer policy diterapkan; CMS noindex/nofollow dan no-store                                                                      |
+| Vercel error log scan         | Tidak ada error log pada kedua project untuk interval satu jam saat pemeriksaan                                                                                       |
+| Web production initial bundle | 172.8 KB gzip dengan Supabase aktif; di bawah budget 190 KB; Three.js tetap lazy                                                                                      |
 
 Fixture SQL cloud tidak di-commit ke database. Draft dan PNG untuk browser smoke check dibuat sementara lalu dihapus; tidak ada profil/project/foto fiktif sebagai final content. Konten asli belum tersedia, sehingga project detail route dan proximity card menggunakan konten nyata tetap menunggu pengisian CMS; alur tersebut sudah diuji dengan fixture pada browser tests lokal/CI.
 
 Artefak production lokal (diabaikan Git): `test-results/production-verification.json`, `test-results/production-web.png`, `test-results/production-mobile.png`, `test-results/production-cms.png`.
+
+## Forest theme and scroll recovery — 2026-10-04
+
+`UI-THEME.md` menjadi sumber semantic palette public/CMS/HUD dan development world. Dark default, Light manual, preference `portfolio-theme`, dan early external `/theme.js` bekerja tanpa melonggarkan CSP. Saved theme diperiksa pada prerendered HTML dengan module React diblokir. Storage diblokir tetap memberi default Dark dan toggle yang usable. Foto/screenshot CMS tidak difilter atau direcolor.
+
+Shared scroll lock menyimpan overflow asli pada owner pertama dan memulihkannya saat owner terakhir keluar. Intro → world, Settings/detail nested, cancel, Normal Mode dan Escape tidak meninggalkan lock. Fokus kembali ke CTA asli dengan `preventScroll`; posisi sebelum masuk dipulihkan tanpa smooth-scroll. Callback exit stabil juga mencegah focus reset saat proximity berubah.
+
+Browser suite: **25 passed**. Semua 11 responsive widths diperiksa dalam Dark/Light, dengan fixture test terpisah dari konten production. Scroll/posisi/fokus dan beberapa siklus world diperiksa di 390/1440px, termasuk pemulihan custom overflow styles. Swipe sesudah exit diperiksa dengan touch input pada 390×844, 820×1180 dan 1180×820. Axe tidak menemukan violations pada Normal Mode, intro, project detail, CMS setup/dashboard dan editor pada kedua theme. Reduced motion menghilangkan entrance/hover transforms; controls keyboard/touch dan lazy Three.js tetap pass.
+
+Border kontrol memakai semantic token khusus dengan kontras sekitar 4:1 terhadap surface; border dekoratif tetap mengikuti palette. Feedback menggunakan transisi properti spesifik, hover/press tombol, ikon, navbar underline, tonal card hover, serta entrance pendek. Tidak ada `transition: all`, efek kamera baru, bloom, filter pada aset, atau animasi terus-menerus di section.
+
+Untuk mengulang fixture browser tests ketika `.env.local` terhubung ke Supabase, jalankan `pnpm build:e2e` lalu `pnpm test:e2e`. Script menimpa hanya environment child process saat build, tidak mengedit file konfigurasi lokal atau data cloud. Jalankan `pnpm build` sesudahnya untuk memulihkan build dengan konfigurasi asli. `pnpm check` tetap memeriksa build konfigurasi asli; initial JS final 169.6 KB gzip termasuk bootstrap theme, dengan budget 190 KB.
+
+Artefak visual lokal (ignored): `test-results/portfolio-{dark,light}.png`, `test-results/portfolio-light-{360,768,1440}.png`, `test-results/world-{dark,light}.png`, `test-results/cms-{dark,light}.png`, dan `test-results/cms-dashboard-{dark,light}.png`. Verifikasi touch perangkat fisik tetap belum dilakukan.

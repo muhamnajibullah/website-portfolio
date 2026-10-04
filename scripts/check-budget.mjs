@@ -16,7 +16,8 @@ async function walk(key) {
   const sizes = await Promise.all((entry.imports || []).map(walk));
   return gzipSync(bytes).length + sizes.reduce((sum, size) => sum + size, 0);
 }
-const bytes = await walk('index.html');
+const bootstrap = await readFile(new URL('theme.js', root));
+const bytes = (await walk('index.html')) + gzipSync(bootstrap).length;
 if (bytes > 190 * 1024)
   throw new Error(`Initial JS ${Math.round(bytes / 1024)} KB exceeds 190 KB gzip budget.`);
 console.log(`Initial JS: ${(bytes / 1024).toFixed(1)} KB gzip; Three.js is lazy.`);

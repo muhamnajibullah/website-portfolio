@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Icon } from '@portfolio/ui';
+import { Icon, ThemeToggle } from '@portfolio/ui';
 import { repository } from '../../services/client';
 
 export function AuthGate({ children }: { children: ReactNode }) {
@@ -94,12 +94,15 @@ export function AuthGate({ children }: { children: ReactNode }) {
   if (repository && state === 'admin') return children;
   return (
     <main className="auth-page">
-      <a className="brand" href="/">
-        <span className="brand-icon">
-          <Icon name="code" />
-        </span>
-        Portfolio CMS<span className="badge">ADMIN</span>
-      </a>
+      <header className="auth-header">
+        <a className="brand" href="/">
+          <span className="brand-icon">
+            <Icon name="code" />
+          </span>
+          Portfolio CMS<span className="badge">ADMIN</span>
+        </a>
+        <ThemeToggle />
+      </header>
       <div className="auth-card">
         {!repository ? (
           <>

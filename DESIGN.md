@@ -31,9 +31,10 @@ Hero menggunakan area foto pribadi yang jelas. Sampai foto diberikan,
 gunakan placeholder dengan aspect ratio yang stabil agar layout tidak
 berubah saat aset final dimasukkan.
 
-Gunakan soft neutral background, near-black text, muted secondary text,
-subtle borders, dan satu muted accent (misalnya soft blue/indigo). Token
-final boleh disesuaikan saat referensi visual tambahan tersedia.
+Gunakan semantic tokens dan palette forest pada `UI-THEME.md`. Dark Mode
+menjadi default, Light Mode tersedia melalui toggle public/CMS dengan
+preferensi tersimpan. Tonal surfaces, subtle borders, dan sage/mint accent
+menjaga tampilan calm dan readable pada kedua theme.
 
 Typography maksimal 1--2 families, readable, fluid dengan `clamp()`, dan
 tidak membesar berlebihan pada 2K/4K.
@@ -48,6 +49,16 @@ in Normal Mode
 
 Assets 3D dimuat setelah intent user jelas.
 
+Intro, world, dan dialog detail/settings memakai shared scroll lock.
+Saat kembali ke Normal Mode, pulihkan posisi scroll dan fokus pada CTA
+yang membuka world, termasuk CTA di bawah halaman. Lock dialog nested
+tidak boleh melepas lock world atau membuat halaman terkunci setelah exit.
+
+Interaction feedback menggunakan hover/press tombol, pergerakan ikon,
+underline navigation, tonal card hover, dan entrance pendek pada hero/dialog.
+Motion tidak berjalan terus-menerus; reduced motion menonaktifkan entrance
+dan transform feedback. Transisi warna theme sekitar 200ms.
+
 ## 5. Free-Roam World
 
 Tidak menggunakan linear navigation. User bebas berjalan ke area mana
@@ -55,7 +66,7 @@ pun.
 
 Contoh spatial layout:
 
-``` text
+```text
              [PROJECT B]
                   ●
 
@@ -132,17 +143,17 @@ Jangan pernah blank screen.
 
 ## 11. Visual Performance Rules
 
--   low-poly / optimized geometry;
--   compressed textures;
--   avoid large transparent layers;
--   baked/simple lighting jika cocok;
--   limited real-time shadows;
--   no unnecessary post-processing;
--   instancing/reuse untuk repeated objects;
--   adaptive DPR;
--   LOD hanya bila memberi manfaat nyata;
--   dispose resources;
--   stop/pause render work ketika world tidak aktif.
+- low-poly / optimized geometry;
+- compressed textures;
+- avoid large transparent layers;
+- baked/simple lighting jika cocok;
+- limited real-time shadows;
+- no unnecessary post-processing;
+- instancing/reuse untuk repeated objects;
+- adaptive DPR;
+- LOD hanya bila memberi manfaat nyata;
+- dispose resources;
+- stop/pause render work ketika world tidak aktif.
 
 ## 12. Accessibility
 
@@ -150,7 +161,6 @@ Semua informasi 3D mempunyai equivalent Normal Mode. Alt text berasal
 dari CMS. Interactive UI dapat dioperasikan tanpa bergantung pada warna
 saja. Focus state jelas. Touch target nyaman. User selalu dapat keluar
 dari mini-game.
-
 
 ## 13. Helicopter Player Design
 
@@ -169,9 +179,11 @@ Arah desainnya bukan helicopter simulator. Pengalaman harus terasa seperti casua
 ```
 
 ### Camera
+
 Default camera menggunakan third-person chase/follow camera sehingga helicopter terlihat dan user memiliki spatial awareness yang baik.
 
 Camera harus:
+
 - mengikuti helicopter dengan smoothing;
 - menjaga horizon relatif stabil;
 - tidak menempel terlalu dekat;
@@ -182,7 +194,9 @@ Camera harus:
 Optional camera recenter dapat tersedia.
 
 ### Flight Controls
+
 Desktop concept:
+
 - `W/S` — forward/backward;
 - `A/D` — turn/strafe sesuai hasil usability test;
 - mouse — camera/look;
@@ -192,6 +206,7 @@ Desktop concept:
 Final mapping harus diuji agar lebih nyaman daripada mengejar realisme.
 
 Mobile:
+
 - virtual movement control;
 - camera drag;
 - altitude controls;
@@ -199,16 +214,20 @@ Mobile:
 - recenter/reset button bila diperlukan.
 
 ### Animation
+
 Rotor boleh berputar secara visual, tetapi:
+
 - tidak menggunakan motion blur berat;
 - tidak menimbulkan flashing;
 - tidak menghasilkan camera vibration;
 - animation cost harus rendah.
 
 ### Environment Scale
+
 Ukuran bangunan, marker, dan jarak antar-area harus disesuaikan dengan skala helicopter. World tetap compact agar user tidak harus terbang lama untuk menemukan project.
 
 ### Visual Asset Strategy
+
 MVP menggunakan **primitive-first environment**. Model kompleks hanya digunakan jika memberikan nilai visual yang nyata.
 
 Helicopter adalah salah satu aset 3D utama dan dapat menggunakan optimized GLB/GLTF. Tidak ada requirement bahwa pemilik portfolio harus membuat model 3D sendiri.

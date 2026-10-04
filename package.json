@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "build:e2e": "node scripts/build-e2e.mjs",
     "lint": "eslint .",
     "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json",
     "test": "vitest run",

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 import { fixture } from './fixtures';
 import type { Content } from '../../packages/types/src';
 test('CMS signs in, validates, creates a draft and previews safely using mocked transport', async ({
@@ -48,6 +49,13 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
   await page.getByLabel('Password', { exact: true }).fill('test-only-password');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Make your story your own.' })).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: 'test-results/cms-dashboard-dark.png' });
+  await page.getByRole('button', { name: 'Switch to light mode' }).click();
+  // Audit the completed theme, rather than an interpolated foreground mid-transition.
+  await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(5, 31, 32)');
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: 'test-results/cms-dashboard-light.png' });
   await page
     .getByRole('navigation', { name: 'CMS sections' })
     .getByRole('button', { name: /^Projects/ })
@@ -59,6 +67,15 @@ test('CMS signs in, validates, creates a draft and previews safely using mocked 
   await page.getByRole('button', { name: 'Save changes' }).click();
   await expect(page.getByRole('alert')).toBeVisible();
   expect(payloads).toHaveLength(0);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Switch to dark mode' }).click();
+  await expect(page.locator('.cms-sidebar .brand')).toHaveCSS('color', 'rgb(218, 241, 222)');
+  await page.getByRole('button', { name: 'New record' }).click();
+  // Reopen a fresh draft after the theme switch; validation still governs all writes.
+  await page.getByLabel('Title', { exact: true }).fill('Synthetic CMS test draft');
+  await page.getByLabel('Slug', { exact: true }).fill('synthetic-cms-test-draft');
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByLabel('Live url', { exact: true }).fill('');
   await page.getByLabel('Description', { exact: true }).fill('<script>alert(1)</script>');
   await page.getByLabel('Project problems', { exact: true }).fill('Synthetic CMS problem.');

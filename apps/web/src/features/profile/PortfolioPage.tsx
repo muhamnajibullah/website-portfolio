@@ -1,11 +1,18 @@
 import type { Content } from '@portfolio/types';
+import type { MouseEvent } from 'react';
 import { EmptyState, Icon, Image } from '@portfolio/ui';
 import { ProjectCard } from '../projects/ProjectCard';
 import { Technologies } from '../technologies/Technologies';
 import { ExperienceTimeline } from '../experiences/ExperienceTimeline';
 import { Contact } from '../contact/Contact';
 
-export function PortfolioPage({ content, onExplore }: { content: Content; onExplore: () => void }) {
+export function PortfolioPage({
+  content,
+  onExplore,
+}: {
+  content: Content;
+  onExplore: (event: MouseEvent<HTMLButtonElement>) => void;
+}) {
   const profile = content.profiles[0];
   const featured = content.projects.filter((project) => project.featured);
   return (
@@ -82,8 +89,7 @@ export function PortfolioPage({ content, onExplore }: { content: Content; onExpl
           <SectionLabel number="01" label="A little about me" />
           <h2>
             Behind the
-            <br />
-            {' '}implementation.
+            <br /> implementation.
           </h2>
         </div>
         <div>
@@ -189,35 +195,46 @@ function WorldIllustration() {
   return (
     <div className="world-illustration" aria-hidden="true">
       <svg viewBox="0 0 440 320" fill="none">
-        <path d="m45 230 175-90 175 90-175 85z" fill="#dbe5e4" />
-        <path d="m45 230 175 85v-17L45 213z" fill="#becfcd" />
-        <path d="m220 315 175-85v-17l-175 85z" fill="#ccd9d6" />
-        <path d="m85 230 135-68 135 68-135 68z" stroke="#afc4c5" strokeDasharray="4 7" />
-        <path d="m157 247 57-30 61 30-58 30z" fill="#f8faf8" />
-        <path d="m191 244 25-12 27 13-25 12z" stroke="#9cb0b1" />
-        <path d="m124 207 26-13v-50l-26 13z" fill="#9cb0b1" />
-        <path d="m150 194 25 13v-50l-25-13z" fill="#b7c9c9" />
-        <path d="m124 157 26-13 25 13-25 13z" fill="#eef2ef" />
-        <path d="m285 231 27-13v-66l-27 13z" fill="#bccbd6" />
-        <path d="m312 218 24 12v-65l-24-13z" fill="#95acbf" />
-        <path d="m285 165 27-13 24 13-25 13z" fill="#e1eaf1" />
+        <path d="m45 230 175-90 175 90-175 85z" fill="var(--color-surface-elevated)" />
+        <path d="m45 230 175 85v-17L45 213z" fill="var(--color-border)" />
+        <path d="m220 315 175-85v-17l-175 85z" fill="var(--color-border)" />
+        <path
+          d="m85 230 135-68 135 68-135 68z"
+          stroke="var(--color-primary)"
+          strokeDasharray="4 7"
+        />
+        <path d="m157 247 57-30 61 30-58 30z" fill="var(--color-surface-elevated)" />
+        <path d="m191 244 25-12 27 13-25 12z" stroke="var(--color-border)" />
+        <path d="m124 207 26-13v-50l-26 13z" fill="var(--color-border)" />
+        <path d="m150 194 25 13v-50l-25-13z" fill="var(--color-primary)" />
+        <path d="m124 157 26-13 25 13-25 13z" fill="var(--color-surface-elevated)" />
+        <path d="m285 231 27-13v-66l-27 13z" fill="var(--color-primary)" />
+        <path d="m312 218 24 12v-65l-24-13z" fill="var(--color-primary)" />
+        <path d="m285 165 27-13 24 13-25 13z" fill="var(--color-surface-elevated)" />
         <path
           d="M216 129v-17m-62-9 130 15"
-          stroke="#405c85"
+          stroke="var(--color-primary)"
           strokeWidth="5"
           strokeLinecap="round"
         />
-        <path d="m159 136 33 6 15-15 32 6 26 23-10 9-50-6-15-10-31-5z" fill="#405c85" />
-        <path d="m233 137 16 18-22-3-9-18z" fill="#c3d9e7" />
+        <path
+          d="m159 136 33 6 15-15 32 6 26 23-10 9-50-6-15-10-31-5z"
+          fill="var(--color-primary)"
+        />
+        <path d="m233 137 16 18-22-3-9-18z" fill="var(--color-text)" />
         <path
           d="m205 159-4 12m43-6-4 12m-46-8 61 10"
-          stroke="#536c83"
+          stroke="var(--color-text-secondary)"
           strokeWidth="3"
           strokeLinecap="round"
         />
-        <circle cx="150" cy="130" r="5" fill="#405c85" />
-        <circle cx="312" cy="138" r="5" fill="#405c85" />
-        <path d="M150 123v-18m162 26v-18" stroke="#7b96b5" strokeDasharray="3 4" />
+        <circle cx="150" cy="130" r="5" fill="var(--color-primary)" />
+        <circle cx="312" cy="138" r="5" fill="var(--color-primary)" />
+        <path
+          d="M150 123v-18m162 26v-18"
+          stroke="var(--color-text-secondary)"
+          strokeDasharray="3 4"
+        />
       </svg>
       <span className="illustration-caption">
         A helicopter. A handful of ideas. Room to explore.

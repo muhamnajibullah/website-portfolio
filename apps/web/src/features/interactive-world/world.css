@@ -21,7 +21,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  background: linear-gradient(#e4edf0, transparent);
+  background: linear-gradient(var(--world-sky), transparent);
 }
 .world-brand {
   display: flex;
@@ -29,7 +29,7 @@
   align-items: center;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #344d63;
+  color: var(--ink);
 }
 .world-brand small {
   display: block;
@@ -49,14 +49,14 @@
   left: 24px;
   max-width: 260px;
   padding: 18px;
-  border: 1px solid #c8d6d6;
-  background: #f9fbf6e8;
+  border: 1px solid var(--line);
+  background: var(--color-surface);
   border-radius: 12px;
 }
 .world-hint p {
   font-size: 0.8rem;
   margin: 8px 0 12px;
-  color: #53646c;
+  color: var(--muted);
   line-height: 1.7;
 }
 .world-hint .eyebrow {
@@ -77,11 +77,11 @@
 }
 .desktop-help {
   padding: 14px 18px;
-  background: #f9fbf5ed;
-  border: 1px solid #c7d6d4;
+  background: var(--color-surface);
+  border: 1px solid var(--line);
   border-radius: 8px;
   font-size: 0.72rem;
-  color: #495f6e;
+  color: var(--muted);
   display: flex;
   gap: 10px;
   align-items: center;
@@ -101,10 +101,10 @@ kbd {
   max-width: 80%;
   padding: 10px 18px;
   border-radius: 20px;
-  background: #f9fbf8ed;
-  border: 1px solid #c7d6d4;
+  background: var(--color-surface);
+  border: 1px solid var(--line);
   font-size: 0.8rem;
-  color: #344d63;
+  color: var(--ink);
 }
 .world-labels {
   position: absolute;
@@ -119,11 +119,11 @@ kbd {
   width: max-content;
   max-width: min(260px, calc(100vw - 32px));
   padding: 10px 14px;
-  border: 1px solid #c0cfcd;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fafbf9e8;
+  background: var(--color-surface);
   font-size: 0.8rem;
-  color: #344d63;
+  color: var(--ink);
   white-space: normal;
   text-align: center;
 }
@@ -141,7 +141,7 @@ kbd {
 .point-preview {
   display: none;
   margin-top: 10px;
-  border-top: 1px solid #c0cfcd;
+  border-top: 1px solid var(--line);
   padding-top: 10px;
 }
 .point-label[data-zone='focus'] .point-preview,
@@ -168,7 +168,7 @@ kbd {
 }
 .point-tools span {
   font-size: 0.65rem;
-  border: 1px solid #c0cfcd;
+  border: 1px solid var(--line);
   border-radius: 4px;
   padding: 2px 5px;
 }
@@ -178,11 +178,15 @@ kbd {
   margin-top: 8px;
 }
 .point-label[data-zone='discovery'] {
-  opacity: 0.7;
+  border-color: var(--world-marker-discovery);
+}
+.point-label[data-zone='focus'] {
+  border-color: var(--world-marker-discovery);
+  border-width: 2px;
 }
 .point-label[data-zone='interaction'] {
-  border-color: #405c85;
-  background: white;
+  border-color: var(--color-primary);
+  background: var(--color-surface-elevated);
 }
 .touch-controls {
   display: none;
@@ -208,6 +212,12 @@ kbd {
 .world-details .actions {
   margin-top: 24px;
 }
+.world-theme-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
 @media (pointer: coarse), (max-width: 820px) {
   .desktop-help {
     display: none;
@@ -225,8 +235,8 @@ kbd {
   .joystick {
     width: 110px;
     height: 110px;
-    border: 1px solid #a6bcb9;
-    background: #f9fbf7c9;
+    border: 1px solid var(--color-primary);
+    background: var(--color-surface);
     border-radius: 50%;
     position: relative;
     display: grid;
@@ -239,8 +249,8 @@ kbd {
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: #66869eaa;
-    border: 1px solid #66869e;
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
   }
   .joystick-label {
     position: absolute;
@@ -250,7 +260,7 @@ kbd {
       Consolas,
       monospace;
     letter-spacing: 0.1em;
-    color: #385468;
+    color: var(--ink);
   }
   .altitude-controls {
     display: flex;
@@ -260,7 +270,7 @@ kbd {
   }
   .altitude-controls button {
     font-size: 22px;
-    background: #fafcf8e8;
+    background: var(--color-surface);
     touch-action: none;
   }
   .world-bottom {

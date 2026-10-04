@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Content, InteractivePoint } from '@portfolio/types';
-import { Dialog, Icon, Image } from '@portfolio/ui';
+import { Dialog, Icon, Image, ThemeToggle } from '@portfolio/ui';
 import { WorldFallback } from '../../app/PublicApp';
 import { createFlightInput } from './systems/flightMovement';
 import { nearestPoint } from './systems/proximitySystem';
@@ -265,6 +265,10 @@ export default function InteractiveWorld({
       )}
       {settingsOpen && (
         <Dialog title="Flight settings" onClose={() => setSettingsOpen(false)}>
+          <div className="world-theme-setting">
+            <span>Appearance</span>
+            <ThemeToggle />
+          </div>
           <div className="field">
             <label htmlFor="quality">Graphics quality</label>
             <select

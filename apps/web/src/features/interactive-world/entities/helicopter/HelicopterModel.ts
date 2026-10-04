@@ -6,11 +6,11 @@ import {
   SphereGeometry,
   CylinderGeometry,
 } from 'three';
-export function createHelicopter() {
+export function createHelicopter(colors: { paint: string; glass: string; frame: string }) {
   const group = new Group();
-  const paint = new MeshStandardMaterial({ color: '#59799b', roughness: 0.85 });
-  const window = new MeshStandardMaterial({ color: '#bad9e5', roughness: 0.5 });
-  const dark = new MeshStandardMaterial({ color: '#3c5366', roughness: 0.85 });
+  const paint = new MeshStandardMaterial({ color: colors.paint, roughness: 0.85 });
+  const window = new MeshStandardMaterial({ color: colors.glass, roughness: 0.5 });
+  const dark = new MeshStandardMaterial({ color: colors.frame, roughness: 0.85 });
   const body = new Mesh(new SphereGeometry(1, 12, 8), paint);
   body.scale.set(0.75, 0.68, 1.35);
   group.add(body);
@@ -43,5 +43,5 @@ export function createHelicopter() {
   const tailRotor = new Mesh(new BoxGeometry(0.045, 1.1, 0.1), dark);
   tailRotor.position.set(0.15, 0.45, 2.9);
   group.add(tailRotor);
-  return { group, rotor, tailRotor };
+  return { group, rotor, tailRotor, materials: { paint, glass: window, frame: dark } };
 }

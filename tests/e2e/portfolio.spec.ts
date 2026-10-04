@@ -31,6 +31,13 @@ for (const width of [360, 390, 430, 768, 820, 1024, 1366, 1440, 1920, 2560, 3840
     expect(await page.locator('canvas').count()).toBe(0);
     if ([360, 768, 1440].includes(width))
       await page.screenshot({ path: `test-results/portfolio-${width}.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Switch to light mode' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    if ([360, 768, 1440].includes(width))
+      await page.screenshot({ path: `test-results/portfolio-light-${width}.png`, fullPage: true });
   });
 }
 test('Three.js loads after Enter World; controls, proximity, details and exit work', async ({
@@ -56,9 +63,18 @@ test('Three.js loads after Enter World; controls, proximity, details and exit wo
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByLabel('Graphics quality').selectOption('low');
   await page.getByRole('button', { name: 'Continue exploring' }).click();
-  await page.keyboard.down('w');
-  await expect(page.getByRole('button', { name: 'Open details' })).toBeEnabled();
-  await page.keyboard.up('w');
+  const openDetails = page.getByRole('button', { name: 'Open details' });
+  // Short real-keyboard inputs avoid flying through the entire zone during slow software WebGL assertions.
+  for (let attempt = 0; attempt < 12 && !(await openDetails.isEnabled()); attempt++) {
+    await page.keyboard.press('w', { delay: 200 });
+    await expect
+      .poll(
+        async () =>
+          JSON.parse((await page.locator('canvas').getAttribute('data-flight')) ?? '{}').forward,
+      )
+      .toBe(0);
+  }
+  await expect(openDetails).toBeEnabled();
   await page.keyboard.press('e');
   await expect(page.getByRole('dialog', { name: 'Synthetic browser test project' })).toBeVisible();
   const pointCard = page.locator('.point-label');
@@ -163,6 +179,21 @@ for (const viewport of [
       await page.getByRole('button', { name: 'Reset flight' }).tap();
       await page.getByRole('button', { name: 'Normal Mode', exact: true }).tap();
       await expect(page.locator('canvas')).toHaveCount(0);
+      await expect(
+        page.getByRole('button', { name: 'Explore interactive world', exact: true }),
+      ).toBeFocused();
+      const scrollBefore = await page.evaluate(() => scrollY);
+      await touch.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{ x: viewport.width / 2, y: viewport.height * 0.75 }],
+      });
+      for (const fraction of [0.65, 0.55, 0.45])
+        await touch.send('Input.dispatchTouchEvent', {
+          type: 'touchMove',
+          touchPoints: [{ x: viewport.width / 2, y: viewport.height * fraction }],
+        });
+      await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(scrollBefore + 50);
     } finally {
       await context.close();
     }

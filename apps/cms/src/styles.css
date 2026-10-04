@@ -6,7 +6,7 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 24px;
-  background: white;
+  background: var(--color-surface);
 }
 .mfa-card h2 {
   font-size: 1.25rem;
@@ -16,7 +16,7 @@
 }
 .mfa-qr {
   margin: 20px auto;
-  background: white;
+  background: var(--color-qr-surface);
 }
 .mfa-card details {
   font-size: 0.8rem;
@@ -45,14 +45,43 @@
   margin: 0 auto;
   padding-block: clamp(36px, 10vh, 100px);
 }
-.auth-page > .brand {
+.auth-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 45px;
+}
+.auth-header .brand {
+  flex-wrap: wrap;
+}
+.cms-top-actions {
+  align-items: center;
+  flex-shrink: 0;
+}
+.auth-card {
+  animation: surface-enter 250ms var(--ease-out);
+}
+.dashboard-stat {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    transform 180ms var(--ease-out);
+}
+.dashboard-stat:hover {
+  background: var(--color-surface-elevated);
+  border-color: var(--color-primary);
+}
+.cms-sidebar nav button {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 .auth-card {
   padding: 32px;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: white;
+  background: var(--color-surface);
 }
 .auth-card h1 {
   font-size: 2rem;
@@ -87,7 +116,7 @@
 .cms-sidebar {
   border-right: 1px solid var(--line);
   padding: 30px 20px;
-  background: #f0f4f0;
+  background: var(--color-bg-subtle);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -114,17 +143,17 @@
   justify-content: space-between;
   text-align: left;
   font-size: 0.8rem;
-  color: #566760;
+  color: var(--muted);
   gap: 12px;
 }
 .cms-sidebar nav button.selected {
-  background: white;
-  box-shadow: 0 1px 4px #2340310a;
-  color: #304b6d;
+  background: var(--color-surface);
+  box-shadow: 0 1px 4px var(--color-shadow);
+  color: var(--accent);
   font-weight: 600;
 }
 .cms-sidebar nav button:hover {
-  background: #e6ece5;
+  background: var(--color-surface-elevated);
 }
 .cms-sidebar nav button span {
   font-size: 0.7rem;
@@ -182,7 +211,7 @@
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: white;
+  background: var(--color-surface);
   text-align: left;
   position: relative;
 }
@@ -203,13 +232,13 @@
   position: absolute;
   bottom: 26px;
   right: 20px;
-  color: #7d9289;
+  color: var(--muted);
 }
 .dashboard-next {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 32px;
-  background: white;
+  background: var(--color-surface);
   margin-top: 32px;
 }
 .dashboard-next h2 {
@@ -229,8 +258,8 @@
 }
 .record-toolbar select {
   padding: 10px;
-  border: 1px solid var(--line);
-  background: white;
+  border: 1px solid var(--color-control-border);
+  background: var(--color-surface);
   border-radius: 8px;
   min-height: 44px;
 }
@@ -246,7 +275,7 @@
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: white;
+  background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -276,7 +305,7 @@
   padding: 10px 12px;
 }
 .danger {
-  color: #823d32;
+  color: var(--color-error);
 }
 .editor-dialog {
   width: min(850px, calc(100% - 32px));
@@ -304,7 +333,7 @@
   gap: 12px;
   position: sticky;
   bottom: -28px;
-  background: #fafbf9;
+  background: var(--color-surface);
   border-top: 1px solid var(--line);
   padding-block: 20px;
 }
@@ -324,7 +353,7 @@
   padding: 24px;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: white;
+  background: var(--color-surface);
   margin-bottom: 28px;
   max-width: 640px;
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Content, ContentRecord, TableName } from '@portfolio/types';
 import { emptyContent } from '@portfolio/validation';
-import { EmptyState, Icon } from '@portfolio/ui';
+import { EmptyState, Icon, ThemeToggle } from '@portfolio/ui';
 import { repository } from '../../services/client';
 import { RecordEditor, defaultRecord, recordLabel } from '../content/RecordEditor';
 import { MediaUpload } from '../media/MediaUpload';
@@ -127,7 +127,10 @@ export function Dashboard() {
       <main className="cms-main">
         <header className="cms-top">
           <span className="eyebrow">Content management</span>
-          <span className="badge accent">Administrator</span>
+          <div className="actions cms-top-actions">
+            <span className="badge accent">Administrator</span>
+            <ThemeToggle />
+          </div>
         </header>
         <div className="cms-heading">
           <div>
